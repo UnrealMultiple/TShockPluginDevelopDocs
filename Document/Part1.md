@@ -2,10 +2,11 @@
 
 本章你将学到：  
 
+- 安装TShock插件模板
 - 使用`Rider`创建插件项目
 - 初步了解编写一个插件的流程
 
-## 1.安装TShock插件模板
+## 1.安装TShock插件模板 (by @xuyuwtu)
 
 1. 打开一个`PowerShell`  
 ![image](https://github.com/user-attachments/assets/661cb09b-1095-42d9-b6b1-3318f7d3a9a9)
@@ -187,7 +188,7 @@ public class Plugin : TerrariaPlugin
 4. 执行`/helloworld`(或者`/hw`)，控制台打印出绿色`Hello world!`说明插件功能正常  
    ![image](https://github.com/user-attachments/assets/c00c9fe1-8874-4f0b-b1ca-263aed108fc5)
 
-## 8.使用`VBY.PluginLoader`热重载插件 (by 西江)
+## 8.使用`VBY.PluginLoader`热重载插件 (by @xuyuwtu)
 当我们修改代码后，我们需要把新构建的插件丢进`ServerPlugins`里，同时还需要重启TShock来重新加载我们的插件，TShock重启的速度很慢，这样很浪费时间，所以我们就可以使用`VBY.PluginLoader`热重载插件
 | 命令 | 作用 |
 | :-: | :-: |

@@ -2,38 +2,42 @@
 
 本章你将学到：  
 
-- 如何安装Microsoft Visual Studio
+- 如何安装JetBrains Rider
 
-## 1.下载Microsoft Visual Studio安装程序​
 
-1. 进入Visual Studio官方下载地址: <https://visualstudio.microsoft.com/zh-hans/downloads/>  
-2. 选择Community版本下载\(Professional、Enterprise版是付费版本\)  
+## 1.下载Rider安装程序​
+
+1. 进入Rider官方下载地址: <https://www.jetbrains.com/zh-cn/rider/>  
+2. 点击下载
   
+![image](https://github.com/user-attachments/assets/b36f7747-420b-44ff-9af6-8361db767577)
 
-![1692965150135.png](Resourse/6471_1ebf065ce18f856eee0487e85496500d.png "1692965150135.png")
 
-## 2.打开VisualStudioSetup.exe​
+## 2.打开Rider安装程序​(JetBrains.Rider)
+勾选下面的几个选项，然后一直下一步
 
-- 点击继续即可，然后会开始安装VisualStudio安装器  
+![image](https://github.com/user-attachments/assets/5d5926ac-c8bf-40b3-9281-5cf5da496f5c)
 
-## 3.选择.NET 桌面开发并安装​
 
-![1692966114824.png](Resourse/6474_39400d8a242d19563d0e25b023464415.png "1692966114824.png")
 
-> 注: 请不要自以为是随便勾选组件和工作负载，每个工作负载都要占用相当大的储存空间。 修改安装位置可能导致一些玄学的安装问题，为了避免出现问题，请直接默认即可，如果你要修改部分安装设置，那么请你对你的修改有十足的把握！！！
+## 3.等待安装​
 
-  
+![image](https://github.com/user-attachments/assets/182bd8fe-8d3c-43c0-99fc-0bb20fc9de60)
 
-## 4.等待安装​
-
-![1692966713652.png](Resourse/6475_f80dc35acf469e8d4dd612963338c317.png "1692966713652.png")
 
 > 注：若提示需要重启，重启即可
 
-## 5.启动VisualStudio
+## 5.启动 & 激活Rider  
+1. 点击配置(Configure)  
+![image](https://github.com/user-attachments/assets/b3d29a62-c582-4000-905f-cfbc7650dff5)
+2. 点击管理许可证(Manage Licenses)  
+![image](https://github.com/user-attachments/assets/6c52c820-f94c-4302-825a-68ab8ee7c3ae)
+3. 选择免费非商业许可证并激活  
+![image](https://github.com/user-attachments/assets/31e589ae-226c-46e6-ac5c-0967d290eecd)
+4. 安装完成
 
-- VisualStudio一般会出现在开始菜单下，你可以使用如下方法创建快捷方式\(如果没有快捷方式\)  
-- 初次启动可能会要求登录，登录完成后可以选择自定义主题，按照自己的偏好选择即可
-![1692967698634.png](Resourse/6476_9620982f91a831420e1f690259f1bb40.png "1692967698634.png")
+
+
+
   
 

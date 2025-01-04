@@ -6,185 +6,135 @@
 * TShock插件的初始化顺序
 
 ## 插件模板​
-
-> 以下是一个常用的TShock插件模板
-
-
-
+以下是一个常用的TShock插件模板
 ```csharp
-//代码来源：https://github.com/chi-rei-den/PluginTemplate/blob/master/src/PluginTemplate/Program.cs
-//恋恋的TShock插件模板，有改动（为了配合章节名）
-//来自棱镜的插件教程
-
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
 
-namespace Plugin
+namespace MyFirstPlugin;
+
+[ApiVersion(2, 1)]
+public class Plugin : TerrariaPlugin 
 {
-    [ApiVersion(2, 1)]
-    public class Plugin : TerrariaPlugin
+    
+    //插件的名称
+    public override string Name => "MyFirstPlugin";
+    
+    //插件作者名字
+    public override string Author => "Cai";
+    
+    //插件功能的一句话描述
+    public override string Description => "我也不知道这个有什么用"; 
+
+    //插件的版本, 可以采用日期来命名, eg: 2024年1月4日第1个版本 -> new(2024, 1,4,1)
+    public override Version Version => new(2024, 1,4,1);
+    
+    //插件的构造器
+    public Plugin(Main game) : base(game) 
     {
-        //定义插件的作者名称
-        public override string Author => "插件的作者";
-
-        //插件的一句话描述
-        public override string Description => "插件的描述";
-
-        //插件的名称
-        public override string Name => "插件的名字";
-
-        //插件的版本
-        public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-
-        //插件的构造器
-        public Plugin(Main game) : base(game)
-        {
-        }
-
-        //插件加载时执行的代码
-        public override void Initialize()
+    }
+    
+    //插件加载时执行的代码
+    public override void Initialize()
+    {
+        
+    }
+        
+    //插件卸载时执行的代码
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
         {
         }
         
-        //插件卸载时执行的代码
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-            }
-            base.Dispose(disposing);
-        }
-
+        base.Dispose(disposing);
     }
 }
 ```
 
 
 ## 插件基本信息​
-> 以下代码可以设置插件的一些基本信息，插件名建议按照功能命名，不要起奇怪名字\(例如"炸裂"\)  
+以下代码可以设置插件的一些基本信息，插件名建议按照功能命名，不要起奇怪名字(例如"炸裂"), Author(插件作者)、Name(插件名字)、Version(插件版本)将会在插件初始化完成时显示  
+![image](https://github.com/user-attachments/assets/be546207-ea31-43c9-b26e-4114c8d9ed51)
 ```csharp
-//定义插件的作者名称
-public override string Author => "插件的作者";
-
-//插件的一句话描述
-public override string Description => "插件的描述";
-
 //插件的名称
-public override string Name => "插件的名字";
+public override string Name => "MyFirstPlugin";
 
-//插件的版本
-public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
+//插件作者名字
+public override string Author => "Cai";
+
+//插件功能的一句话描述
+public override string Description => "我也不知道这个有什么用"; 
+
+//插件的版本, 可以采用日期来命名, eg: 2024年1月4日第1个版本 -> new(2024, 1,4,1)
+public override Version Version => new(2024, 1,4,1);
 ```
 
-- Author\(插件作者\)、Name\(插件名字\)、Version\(插件版本\)将会在插件初始化完成时显示  
 
-![1693020601153.png](Resourse/6526_0d62fb22e43fa3980efba17731fe70e6.png "1693020601153.png")
+> [!NOTE]
+> 使用`new Version()`将会显示此方法参数为版本号  
+> 而使用`Assembly.GetExecutingAssembly().GetName().Version`获取的是程序集的版本号, 程序集版本号需要在项目属性中修改  
+> ```csharp
+> //插件的版本
+> public override Version Version => new Version(2024, 1,4,1); //代码中设置版本 (推荐)
+> public override Version Version =>
+> Assembly.GetExecutingAssembly().GetName().Version; //项目中设置版本 (麻烦)
+> ```
 
-- 其中，Version可以通过new Version修改，如下:  
-
-```csharp
-//插件的版本
-public override Version Version => new Version(1, 0, 0, 0);
-//public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-```
-
-- 使用new Version\(\)将会显示此方法参数为版本号\(例如本例子中的"1.0.0.0"\)  
-- 而使用Assembly.GetExecutingAssembly\(\).GetName\(\).Version获取的是程序集的版本号, 程序集版本号需要在项目属性中修改  
-
-> 注: 如果你使用new Version\(\)作为版本号，将会以你Version\(\)的参数作为版本号，而不是程序集版本
 
 <details>
   <summary>修改程序集版本</summary>
-      <ol>
-        <li>右键解决方案资源管理器中的项目\(这里是HelloWorld\),然后点击属性<br>
-        <img src="Resourse/6521_17b2fe13121894c2606b5672953c284f.png" alt="图片描述"><br>
-        <img src="Resourse/6522_163749ccba0554c69e60e62fa4e3d10f.png" alt="图片描述"><br>
-        <li>在属性选项卡中依次找到包—常规—程序集版本  <br>
-        <img src="Resourse/6524_2ef29be4606e5e50751e678d992fb50d.png" alt="图片描述"><br>
-        <li>修改程序集版本即可
-      </ol>
+    1. 右键资源管理器中的项目(这里是Myfirstplugin),然后点击属性
+        <img src="https://github.com/user-attachments/assets/41c63f6d-92a9-4ec8-a7b5-4f4723b38feb" alt="img"><br>
+    2. 修改程序集版本即可
+        <img src="https://github.com/user-attachments/assets/e8fa0c71-122e-454e-bfa1-bb9007301105" alt="img"><br>
+      
 </details>
 
 
 
 ## 插件的构造器​
 
--  插件的构造器，也叫构造函数，构造函数中的代码会比Initialize\(初始化\)函数更先执行.  
-- 服务端会先按照读取到插件的顺序\(取决于插件的文件名\)执行所有插件的构造函数，再按照Order\(等下会讲\)由小到大执行Initialize\(初始化\)函数  
-
-
+插件的构造器，也叫构造函数。当TShock创造插件对象时，构造函数就会被调用，构造函数中的代码会比`Initialize`方法更先执行。服务端会先按照读取到插件的顺序(取决于插件的文件名)执行所有插件的构造函数，再按照`Order`由小到大执行插件的`Initialize`方法 
 
 ```csharp
 //插件的构造器
 public Plugin(Main game) : base(game)
 {
-    base.Order = 1; //插件加载顺序，默认为1，数字越小越先加载
+    /*
+    插件加载顺序，默认为1，数字越小越先加载
+    其中int.MaxValue最晚加载, int.MinValue最先加载
+    TShockAPI的Order为0, 所以Order < 0会比TShock更优先加载, Order > 0,则会比TShock更晚加载
+    如果你不是指Order, 那么Order的默认值为1,会比TShock晚加载
+    */
+    base.Order = 1;
 }
 ```
+> [!CAUTION]
+> 通常情况下，构造函数的执行会在TShock初始化之前
+> 如果在构造函数中编写代码(例如建表)，可能会导致十分玄学的问题，所以没有特殊需要下一般插件的构造函数都会直接放空。
+> 如果没有特殊需要也不要修改`Order`
 
-- 通常情况下，构造函数的执行会在TShock初始化之前，如果在构造函数中编写代码\(例如建表\)，可能会导致十分玄学的问题，  所以没有特殊需要下一般插件的构造函数都会直接放空。  
+## 插件的初始化方法
 
-### 在构建函数中修改Order\(听不懂没事\)
-
-- 构造函数常常会用来修改插件的初始化顺序—Order  
-- Order是一个int类型的整数，Order可以在取int类型范围内的任何数，当然也可以是负数  
-- Order越小插件的初始化就越优先，Order为1的插件会比Order为2的插件先初始化, TShock的Order为0
-- 插件的Order在默认情况下\(不修改\)为1，而TShock的Order为0，所以TShock会比其他插件更先初始化  
-
-<details>
-  <summary>Order例子</summary>
-  <ol>
-    <li> 编写两个插件，在执行构造函数和初始化函数执行时打印文本<br>
-    <img src="Resourse/6530_f7178dea684e463a3906bc89a05dba11.png" alt="图片描述"><br>
-    <li> 重命名并安装插件<br>
-        <ul>
-            <li>当Order为1的插件在文件夹中更靠前时\(以文件名排序\)，Order为1的插件的构造函数将会先被执行<br>
-            <img src="Resourse/6533_cc0bdd48046b7012e10c0228eef0ef06.png" alt="图片描述"><br>
-            <img src="Resourse/6534_783aedca561256565fae29db0fba1976.png" alt="图片描述"><br>
-            <li>相反，当Order为2的插件在文件夹中更靠前时\(以文件名排序\)，Order为2的插件的构造函数将会先被执行  <br>
-            <img src="Resourse/6531_0dc2b5f224e085f63b4aeafb500d8242.png" alt="图片描述"><br>
-            <img src="Resourse/6532_81e71b3644e9c1ecc16d404da47c02c3.png" alt="图片描述"><br>
-            <li>所以，插件构造函数的执行顺序取决于插件的文件名，与Order无关  <br>
-            <li>但是无论文件名如何修改，Order为1的插件总会先初始化，如下图:  <br>
-            <img src="Resourse/6535_644e3b83b2095ffdd4efb6fb7cd0a8a1.png" alt="图片描述"><br>
-            <li>所以，插件初始化函数的执行顺序取决于Order，与插件的文件名无关
-        </ul>
-    </ol>
-</details>
-
-
-
-## 插件的初始化函数​
-
-> 初始化函数是TShock插件中非常重要的部分，这个函数主要负责插件的初始化，可以用来注册钩子、添加命令、注册REST API命令、初始化配置文件、初始化数据库等  
-
-
+初始化方法是TShock插件中非常重要的部分，这个函数主要负责插件的`初始化`，可以用来`注册钩子`、`添加命令`、`注册REST API命令`、`初始化配置文件`、`初始化数据库`等  
 
 ```csharp
 //插件加载时执行的代码
 public override void Initialize()
 {
     ServerApi.Hooks.ServerChat.Register(this, this.OnChat); //注册钩子
-    Commands.ChatCommands.Add(new Command(permissions: new List<string> {""}, cmd: this.Fish, "钓鱼排行")); //添加命令
+    Commands.ChatCommands.Add(new Command("xsb.fishrank", Fish, "钓鱼排行")); //添加命令
     TShock.RestApi.Register(new SecureRestCommand("/XSB/GetMap", GetMap, "rest.xsb.admin")); //注册REST API命令
-    Config.GetConfig(); //初始化配置文件
-    DB.Connect(); //初始化数据库
+    Config.Instance.Read(); //初始化配置文件
+    DB.Init(); //初始化数据库
 }
 ```
 
-
-
-## 插件的卸载函数​
-
-> 相较于初始化函数，卸载函数显得
-> 但是为了代码规范，还是建议你把注册过的钩子卸载，删除添加的命令  
-
-
-
+## 插件的卸载方法
+插件的卸载方法在插件卸载(通常是TShock关闭时)被调用。如果你使用`PluginLoader`, 那么请你务必写好卸载方法, 否则会导致插件的功能卸载不完全, 重载出现异常。
 ```csharp
 //插件卸载时执行的代码
 protected override void Dispose(bool disposing)
@@ -192,9 +142,23 @@ protected override void Dispose(bool disposing)
      if (disposing)
      {
          ServerApi.Hooks.ServerChat.Deregister(this, this.OnChat);  //卸载钩子
-         Commands.ChatCommands.RemoveAll(c => c.CommandDelegate.Method?.DeclaringType?.Assembly == Assembly.GetExecutingAssembly());
-         //移除插件添加的命令
+         Commands.ChatCommands.RemoveAll(c => c.CommandDelegate.Method?.DeclaringType?.Assembly == Assembly.GetExecutingAssembly()); //移除插件添加的命令 (这个可以卸载所有命令,推荐每个插件都使用)
      }
      base.Dispose(disposing);
 }
 ```
+> [!IMPORTANT]  
+> 注册、注销有始有终  
+> ```csharp
+> //注册 Initialize
+> Commands.ChatCommands.Add(new Command("xsb.fishrank", Fish, "钓鱼排行"));
+> ServerApi.Hooks.ServerChat.Register(this, this.OnChat); 
+> GetDataHandlers.KillMe.Register(OnKillMe);
+> PlayerHooks.PlayerPermission+= PlayerHooksOnPlayerPermission;
+> ...
+> //注销 Dispose
+> Commands.ChatCommands.RemoveAll(c => c.CommandDelegate.Method?.DeclaringType?.Assembly == Assembly.GetExecutingAssembly());
+> ServerApi.Hooks.ServerChat.Deregister(this, this.OnChat); 
+> GetDataHandlers.KillMe.UnRegister(OnKillMe);
+> PlayerHooks.PlayerPermission-= PlayerHooksOnPlayerPermission;
+> ```

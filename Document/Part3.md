@@ -6,44 +6,65 @@
 - 学会处理CommandArgs参数
 - 学会卸载插件添加的命令
 
+## 命令的组成
+### 名字(Name)
+顾名思义，就是这个命令的名字，例如: 如果命令名字就是`cai`，那么对应的命令就是`/cai`
+> [!NOTE]  
+> TShock允许命令重名，例如A插件定义了命令`/back`，那么B插件同样也可以定义命令`/back`  
+> 如果玩家执行命令`/back`那么就会先后执行A、B两个插件的命令逻辑，执行顺序取决于命令被添加的先后(主要看插件的加载顺序)
+### 别名(Alias)
+命令的其他名字，比如：关闭服务器的命令名是`off`, 别名是`exit`、`stop`，那么你执行`/exit`、`/stop`也可以像执行`/off`一样关闭服务器
+> [!NOTE]  
+> 命令只有一个名字，但是可以有无数个别名
+### 权限(Permissions)
+执行命令所需的权限，一个命令可以有多个权限，也可以没有权限。如果玩家所在组没有对应的权限，就会被提示无权执行此命令   
+权限的命名: `插件名.简略描述`或`插件名.分类.简单描述` (字母全小写)  
+例如: `myplugin.use`、`myplugin.admin`、`myplugin.player.slap`
+### 处理方法(CommandDelegate)
+处理命令的方法，这个方法用来处理这个命令
+### 命令说明(HelpText)
+对命令的简单说明，使用`/help <命令>`时会显示
+### 允许非玩家执行(AllowServer)
+允许服务器控制台或者REST用户执行此命令，默认为`true`  
+如果改为`false`,服务器控制台和REST用户将无法使用此命令
+### 记录参数日志(DoLog)
+默认为`true`，改为`false`后将不会记录此命令的参数日志  
+![image](https://github.com/user-attachments/assets/721f3838-e32d-4d24-9c5c-aac95b650df9)  
+## 命令在哪？
+在TShock中，命令以`Command实例`的形式被存放在`Commands.ChatCommands`这个列表中
+## 命令如何被执行？
+首先，明确一点，命令是聊天的一种。TShock通过命令标识符(`CommandSpecifier`)(默认`/`)和静默命令标识符(`CommandSilentSpecifier`)(默认`.`)来区分聊天和命令  
+当有玩家发送聊天时TShock会检查这个聊天内容的开头是否是命令标识符或者静默命令标识符, 如果是就执行命令，不是就当作聊天处理,例如: `KoKo真可爱`会被视为聊天，而`/KoKo真可爱`会被视为命令
+然后TShock会去寻找是否有对应的命令，然后检查权限，最后执行命令的处理方法
+
 ## 1.添加新的命令​
-
-- 在Part 1中有提到，添加命令通常是在插件的初始化函数Initialize\(\)中添加的
-添加新命令的常用格式是这样的:  
-
-
-
+在TShock中，我们通常在初始化方法`Initialize`中添加的命令，具体代码如下:
 ```csharp
 public override void Initialize()
 {
-    Commands.ChatCommands.Add(new Command("mycommand", Cmd, "cmd2"));
-    //Command()中第一个参数是权限名，第二个参数是回调函数，第三个参数是命令名
+    Commands.ChatCommands.Add(new Command("myplugin.use", MyCmdHandler, "mycmd", "mc"));
+    //Command()中第一个参数是权限名，第二个参数是处理方法，第三个参数及之后是命令名和别名
 }
 ```
 
-1. 当你输入代码后由于没有相应的回调函数\(Cmd\)会报错，  
-
-![1693031018827.png](Resourse/6548_6c32bc3b75ba47b75de5d0e8454077eb.png "1693031018827.png")
-
+1. 我们复制之后，发现会报错，找不到`MyCmdHandler`这个方法
+![image](https://github.com/user-attachments/assets/c6ae1887-277d-4e92-a4e0-5b1b680a80e1)  
+> [!NOTE]
+> 如果你报错是找不到Commands  
+> ![image](https://github.com/user-attachments/assets/47b1213f-3902-42c9-b9ee-988766aaabaa)
+> 你就需要先导入TShockAPI命名空间，具体方法如下：  
+> ```csharp
+> //文件顶部加上对应的using语句
+> using TShockAPI;
+> ```  
+> 当然你也可以用Rider的快速操作
+> ![PixPin_2025-01-18_12-41-27](https://github.com/user-attachments/assets/d8043374-c5df-4a9a-8e01-bcce8768884f)
   
-2. 此时我们右键我们需要创建的函数名，然后选择快速操作和重构，
+2. 此时我们右键我们需要创建的方法名，然后使用Rider的快速操作构造我们的处理方法
+![PixPin_2025-01-18_12-43-16](https://github.com/user-attachments/assets/ff5e8b03-2654-46b0-842c-d2dc6bcf0421)  
+3. 现在我们就可以开始编写具体的命令逻辑啦~  
+![image](https://github.com/user-attachments/assets/02e56c53-0c19-4134-9383-c3abd2efb787)  
 
-![1693031109523.png](Resourse/6550_00e5e11c1dea7b3251a45234d6b7049b.png "1693031109523.png")
-
-![1693031137344.png](Resourse/6551_10dbaf1730b53283d2d9308325613d65.png "1693031137344.png")
-
-  
-3. 然后选择生成方法"Cmd"  
-
-![1693031140633.png](Resourse/6552_731767ebe266e2661580f8e2dddfab58.png "1693031140633.png")
-
-  
-4. 此时Visual Studio就会自动帮我们创造一个回调函数  
-
-![1693031155598.png](Resourse/6553_3902012ccc306a62f201489074415937.png "1693031155598.png")
-
-  
-5. 当然，此时这个函数没有任何功能，我们删去throw new NotImplementedException\(\);就可以开始编写命令功能了  
 
 ## 2.命令的权限​
 

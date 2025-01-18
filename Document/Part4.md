@@ -6,17 +6,13 @@
 - 学会使用常用钩子修改游戏事件
 
 ## 什么是钩子
-- 钩子算是一种事件处理的机制。当游戏中发生某些事件前后，你可以通过钩子来获取这个事件，包括它的参数等等，然后通过钩子的处理方法，来实现一些你需要的功能，必要时你可以阻止这个事件发生。  
+- 钩子一种事件处理的机制。当游戏中发生某些事件前后，你可以通过钩子来获取这个事件，包括它的参数等等，然后通过钩子的处理方法，来实现一些你需要的功能，必要时你可以阻止这个事件发生。  
 - 钩子并不是一直检测游戏有没有这个事件，而是游戏出现这个事件后再调用这个钩子。打个比方，就是老师发现你上课睡觉，然后打算一个黑板擦砸爆你，此时`老师发现你上课睡觉，然后打算一个黑板擦砸`就是个事件，你可以通过钩子，来获取这个事件还有他的参数(例如`黑板擦的速度`、`方位`等)，你可以通过编写钩子的`处理方法`来做加入自己需要的逻辑或者修改这个事件的某些东西，比如你为了不被打中，你可以将`黑板擦的速度`改为`0`，这样黑板擦就会停下，当然你也可以调用你的`Miss()`方法来躲开黑板擦，甚至你可以`取消这个事件`，阻止事件发生。
 - 举个泰拉的例子就是，如果你想记录玩家发送的表情，那么你就要把钩子挂在`玩家发送表情`这个事件上，然后编写这个钩子的`处理方法`，去实现你需要的功能
 
 
 ## 举个例子：
-
-- 假如你需要实现当玩家说脏话时把他踢出去，那么你就可以注册一个ServerChat钩子，并且调用OnChat函数。你需要在OnChat函数中编写代码，识别玩家是不是真的说了脏话。最后别忘了卸载你的钩子
-
-
-
+假如你需要实现当玩家说“wdnmd”时把他踢出去，那么你就可以注册一个`ServerChat`钩子，并且调用`OnChatHandler`方法处理事件。你需要在`OnChatHandler`方法中编写代码，识别玩家的聊天是否包含`wdnmd`。最后别忘了注销你的钩子：
 ```csharp
 //以下为示例代码，看不懂没事，我们慢慢学
 using System.Reflection;
@@ -24,8 +20,7 @@ using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
 
-
-namespace Plugin
+namespace NoEggplant
 {
     [ApiVersion(2, 1)]
     public class Plugin : TerrariaPlugin
@@ -33,167 +28,163 @@ namespace Plugin
         //定义插件的作者名称
         public override string Author => "Cai";
 
-
         //插件的一句话描述
-        public override string Description => "拒绝脏话";
-
+        public override string Description => "神秘示例插件";
 
         //插件的名称
-        public override string Name => "Fuck";
-
+        public override string Name => "No Eggplant";
 
         //插件的版本
-        public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
-
+        public override Version Version => new(2024,1,18,1);
 
         //插件的构造器
         public Plugin(Main game) : base(game)
         {
         }
 
-
         //插件加载时执行的代码
         public override void Initialize()
         {
-            ServerApi.Hooks.ServerChat.Register(this, OnChat); //注册聊天钩子
+            ServerApi.Hooks.ServerChat.Register(this, OnChatHandler); //注册聊天钩子
         }
 
-
-        private void OnChat(ServerChatEventArgs args)
+        private void OnChatHandler(ServerChatEventArgs args)
         {
-            TSPlayer plr = TShock.Players[args.Who]; //获取TShock玩家对象
-            if (args.Text.Contains("wdnmd")) //检测聊天是否含有脏话"wdnmd"
+            TSPlayer plr = TShock.Players[args.Who]; //获取TShock玩家实例
+            if (args.Text.Contains("wdnmd")) //检测聊天是否含有"wdnmd"
             {
-                plr.Kick("不许说脏脏！", true); //踢出玩家
+                plr.Kick("不准说wdnmd", true); //踢出玩家
             }
         }
-
 
         //插件卸载时执行的代码
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                ServerApi.Hooks.ServerChat.Deregister(this, OnChat); //卸载聊天钩子
+                ServerApi.Hooks.ServerChat.Deregister(this, OnChatHandler); //注销聊天钩子
             }
             base.Dispose(disposing);
         }
 
-
     }
 }
 ```
-
-
 
 
 ## 代码解析：
 
-- 注册钩子语句  
-不同类型的钩子有不同的注册语句，  
-ServerApi.Hooks.ServerChat.Register\(this, _OnChat_\); 就是ServerApi钩子的注册语句，钩子要在使用前注册\(一般在Initialize注册\)  
-绿字部分是钩子的名字\(一般和其功能有关\)，划线部分是其回调函数\(触发钩子执行的函数\)，其他照写就好  
-
-
-
+### 注册钩子
+钩子不会自己挂，所以在用钩子之前我们必须注册它。不同类型的钩子有不同的注册语句，`ServerApi.Hooks.ServerChat.Register(this, OnChatHandler);`是`ServerApi`钩子的注册语句，`this`表示钩子在这个类里(不会不要管), `OnChatHandler`则是钩子的处理方法，这点和命令有点像
 ```csharp
 //插件加载时执行的代码
 public override void Initialize()
 {
-    ServerApi.Hooks.ServerChat.Register(this, OnChat); //注册聊天钩子
+    ServerApi.Hooks.ServerChat.Register(this, OnChatHandler); //注册聊天钩子
 }
 ```
 
-- 卸载钩子语句
-1. 不同类型的钩子有不同的卸载语句
-2. ServerApi.Hooks.ServerChat.Deregister\(this, _OnChat_\); 就是ServerApi钩子的卸载语句，钩子要在不需要使用时卸载\(一般在Dispose卸载\)  
-3. 绿字部分是钩子的名字\(一般和其功能有关\)，划线部分是其回调函数\(和注册钩子的函数名一样\)，值得注意的是卸载函数是Deregister\(\)而不是注册时的Register\(\)  
-
-
-
+### 注销钩子
+如果你要使用热重载，那么插件卸载就非常有必要了。不同类型的钩子有不同的卸载语句`ServerApi.Hooks.ServerChat.Deregister(this, OnChatHandlert);` 就是`ServerApi`钩子的卸载语句，钩子要在插件卸载时注销(一般在Dispose卸载)。`this`表示钩子在这个类里(不会不要管), `OnChatHandler`则是钩子的处理方法，这和注册是一样的
 ```csharp
 //插件卸载时执行的代码
 protected override void Dispose(bool disposing)
 {
     if (disposing)
     {
-        ServerApi.Hooks.ServerChat.Deregister(this, OnChat); //卸载聊天钩子
+        ServerApi.Hooks.ServerChat.Deregister(this, OnChatHandler); //注销聊天钩子
     }
     base.Dispose(disposing);
 }
 ```
+### 处理方法  
+处理方法是触发钩子时执行的方法，创建方法类似命令的处理方法。写处理方法前，需要在`Initialize()`先注册钩子:
+```csharp
+using System.Reflection;
+using Terraria;
+using TerrariaApi.Server;
+using TShockAPI;
 
-- 回调函数  
->回调函数是触发钩子时执行的函数，创建方法类似命令的回调函数  
+namespace NoEggplant
+{
+    [ApiVersion(2, 1)]
+    public class Plugin : TerrariaPlugin
+    {
+        public override string Author => "Cai";
+        public override string Description => "神秘示例插件";
+        public override string Name => "No Eggplant";
+        public override Version Version => new(2024,1,18,1);
 
-1. 右键函数名字\(自己起名字\)  
+        public Plugin(Main game) : base(game)
+        {
+        }
 
-![1693893972437.png](Resourse/6571_8cdc4616e20116a85b7975b67facea98.png "1693893972437.png")
+        public override void Initialize()
+        {
+            ServerApi.Hooks.ServerChat.Register(this, OnChatHandler); //注册聊天钩子
+        }
 
-  
-2. 点击快速操作和重构...  
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ServerApi.Hooks.ServerChat.Deregister(this, OnChatHandler); //注销聊天钩子
+            }
+            base.Dispose(disposing);
+        }
 
-![1693894022677.png](Resourse/6573_fed49637086fe23261756543dcef9906.png "1693894022677.png")
-
-  
-3. 点击生成方法  
-
-![1693894017431.png](Resourse/6572_f6e81b705edd32999fa2f5c2e9c14c65.png "1693894017431.png")
-
-  
-4. 然后就会发现Visual Studio自动生成了一个回调函数，你需要自行编写函数的逻辑  
-
-![1693894123354.png](Resourse/6574_ae7d2cded4bc1edd92401a03b36334f4.png "1693894123354.png")
-
+    }
+}
+```
+生成处理方法，我们一般使用Rider的快速操作，而不是手搓。右键方法名，点击快速操作即可:  
+![PixPin_2025-01-18_14-55-05](https://github.com/user-attachments/assets/5605244c-f845-4e40-b3ee-770e87ac67f0)  
 
 ## 常用钩子​
 
-- ServerApi钩子  
-> ServerApi的钩子覆盖了服务器大部分可能需要挂钩的事件，同时值得注意的是ServerApi钩子中参数的命名和Terraria原版相似  
-
-
+### ServerApi钩子  
+`ServerApi`的钩子覆盖了服务器大部分可能需要挂钩的事件，同时值得注意的是`ServerApi`钩子中参数的命名和Terraria原版相似  
 
 ```csharp
 //插件加载时执行的代码
 public override void Initialize()
 {
-    ServerApi.Hooks.ServerChat.Register(this, OnChat); //注册ServerApi钩子(玩家聊天)
+    ServerApi.Hooks.ServerChat.Register(this, OnChatHandler); //注册ServerApi钩子(玩家聊天)
 }
-//回调函数
-private void OnChat(ServerChatEventArgs args)
+
+//处理方法
+private void OnChatHandler(ServerChatEventArgs args)
 {
-           
+    ...           
 }
+
 //插件卸载时执行的代码
 protected override void Dispose(bool disposing)
 {
     if (disposing)
     {
-        ServerApi.Hooks.ServerChat.Deregister(this, OnChat); //卸载ServerApi钩子(玩家聊天)
+        ServerApi.Hooks.ServerChat.Deregister(this, OnChat); //注销ServerApi钩子(玩家聊天)
     }
     base.Dispose(disposing);
 }
 ```
-
-- 其中args参数中是不包含TSPlayer对象或Player对象的，所以你需要手动获取，方法如下:  
-
-
-
+其中`args`参数中不包含`TSPlayer`实例或`Player`实例取而代之的是一个名为`Who`的字段，有时候也叫`WhoAmI`或者`Index`, 这些都统称为索引
+Terraria中的玩家、生物、弹幕等等都存放在`Terraria.Main`的几个数组中，有唯一的索引，也叫做下标。Player实例就放在`Main.player`中,如果你想获取索引为`0`的Player实例,就使用`Main.player[0]`即可，`TShock.Players`中的TSPlayer实例的获取方法也是如此。不过值得注意的是，`Main.player`和`TShock.Players`都是数组，它们的`Length`代表他们的长度，而非玩家人数，当你使用一个不存在的玩家的索引时，将会`Main.player[114]`或`TShock.Players[233]`将会获取到null值，超过数组长度还会报错。
 ```csharp
 private void OnChat(ServerChatEventArgs args)
 {
-    //args.Who(有的地方是WhoAmI)是玩家索引的意思，也就是在玩家对象数组中的下标(索引)。Who和WhoAmI等同于TSPlayer中的Index，Who和WhoAmI也可能表示的是生物(NPC)或者弹幕(Projectile)等的索引，这要取决于你的钩子
-    //TShock.Players是TShock玩家对象(TSPlayer)数组，TShock玩家对象中的绝大部分属性、变量、方法都为插件编写服务，大部分都可以在服务端使用
-    //Main.player是Terraria玩家对象(Player)数组，Terraria玩家对象是Terraria客服端和服务端都使用的，所以其中的属性、变量、方法在服务器中可能不会生效
-    TSPlayer plr = TShock.Players[args.Who]; //获取TShock玩家对象，说白点就是用下标获取数组元素
-    Player player = Main.player[args.Who]; //获取TShock玩家对象
+    //args.Who(有的地方是WhoAmI)是`玩家索引`的意思，也就是在玩家实例数组中的下标(索引)。Who和WhoAmI等同于TSPlayer中的Index，Who和WhoAmI也可能表示的是生物(NPC)或者弹幕(Projectile)等的索引，这要取决于你的钩子
+    //TShock.Players是TShock玩家实例(TSPlayer)数组，TShock玩家实例中的绝大部分属性、变量、方法都为插件编写服务，大部分都可以在服务端使用
+    //Main.player是Terraria玩家实例(Player)数组，Terraria玩家实例是Terraria客服端和服务端都使用的，所以其中的属性、变量、方法在服务器中可能不会生效
+    TSPlayer plr = TShock.Players[args.Who]; //获取TShock玩家实例，说白点就是用下标获取数组元素
+    Player player = Main.player[args.Who]; //获取TShock玩家实例
 }
 ```
 
+> [!NOTE]  
+> `args.Handled`可以标记这个事件是否已经处理，如果将其设为true服务器可能会忽略这个事件  
+> `ServerApi.Hooks.ServerChat.Deregister(this, OnChat, 整数);` 可以调整`ServerApi`钩子的优先级，和`Order`不同的是，钩子优先级越高越优先触发
 
-> 注：args.Handled可以标记这个事件是否已经处理，如果将其设为true服务器可能会忽略这个事件
-
-•TShockAPI钩子  
+### TShockAPI钩子  
 这些钩子主要挂钩了TShock中的事件，例如：新建账号、玩家进入区域等，TShockAPI钩子分为如下几类:  
 
  类型 | 包含钩子 
@@ -205,8 +196,6 @@ private void OnChat(ServerChatEventArgs args)
 
 TShockAPI钩子使用方法:  
 
-
-
 ```csharp
 //插件加载时执行的代码
 public override void Initialize()
@@ -214,7 +203,7 @@ public override void Initialize()
     TShockAPI.Hooks.AccountHooks.AccountCreate += AccountHooks_AccountCreate;//注册TShockAPI钩子(玩家创建账号)
 }
 
-//回调函数
+//处理方法
 private void AccountHooks_AccountCreate(TShockAPI.Hooks.AccountCreateEventArgs e)
 {
     TShock.Utils.Broadcast($"[欢迎新人]{e.Account.Name}注册了新账号，快举小花欢迎吧~", 0, 255, 120); //发送全服广播
@@ -225,25 +214,21 @@ protected override void Dispose(bool disposing)
 {
     if (disposing)
     {
-        TShockAPI.Hooks.AccountHooks.AccountCreate -= AccountHooks_AccountCreate; ; //卸载TShockAPI钩子(玩家创建账号)
+        TShockAPI.Hooks.AccountHooks.AccountCreate -= AccountHooks_AccountCreate; ; //注销TShockAPI钩子(玩家创建账号)
     }
     base.Dispose(disposing);
 }
 ```
 
-  
-- GetDataHandlers数据包钩子  
-> 服务器会收到客户端发送的数据包，而GetDataHandlers钩子会解析这些数据包，触发对应的数据包钩子，并且打包成参数传入回调函数，但是GetDataHandlers并不包含所有数据包。  
-
-
-
+### GetDataHandlers数据包钩子  
+服务器会收到客户端发送的数据包，而`GetDataHandlers`钩子会解析这些数据包，触发对应的数据包钩子，并且打包成参数传入处理方法，但是`GetDataHandlers`不包含所有数据包。  
 ```csharp
 //插件加载时执行的代码
 public override void Initialize()
 {
     GetDataHandlers.KillMe.Register(OnKillPlayer); //注册GetDataHandlers数据包钩子(玩家死亡)
 }
-//回调函数
+//处理方法
 private void OnKillPlayer(object? sender, GetDataHandlers.KillMeEventArgs e)
 {
     TShock.Utils.Broadcast($"[死亡]{e.Player.Name}挂掉啦，快来嘲笑他吧!", 0, 255, 120); //发送全服广播
@@ -255,27 +240,29 @@ protected override void Dispose(bool disposing)
 {
     if (disposing)
     {
-        GetDataHandlers.KillMe.UnRegister(OnKillPlayer); //卸载GetDataHandlers数据包钩子(玩家死亡)
+        GetDataHandlers.KillMe.UnRegister(OnKillPlayer); //注销GetDataHandlers数据包钩子(玩家死亡)
     }
     base.Dispose(disposing);
 }
 ```
 
 
+> [!NOTE]  
+> `e.Handled`可以标记这个事件是否已经处理，如果将其设为`true`服务器可能会忽略这个事件 
+> `GetDataHandlers.KillMe.UnRegister(OnKillPlayer, HandlerPriority.优先级);` 可以调整`GetDataHandlers`钩子的优先级，有以下优先级可选：  
+> ![image](https://github.com/user-attachments/assets/baf61235-716d-4b65-bdc9-83fcfc17d843)
 
+### On钩子
+填坑中...
 
-> 注：args.Handled可以标记这个事件是否已经处理，如果将其设为true服务器可能会忽略这个事件
+### IL钩子
+超级危险，需要会IL
 
-
-- 除此之外，还有On钩子和IL钩子，将在以后填坑...
 
 ## 钩子练习题​
 
-1\. 使用ServerApi钩子实现，在玩家加入服务器时\(ServerJoin,ServerLeave\)广播"欢迎玩家XXX加入服务器\!"，在玩家离开服务器时广播"玩家XXX离开服务器\!"  
+1. 使用ServerApi钩子实现，在玩家加入服务器时(ServerJoin,ServerLeave)广播"欢迎玩家XXX加入服务器!"，在玩家离开服务器时广播"玩家XXX离开服务器!"  
 > 提示: 可以使用如下语句获取TShock玩家对象  
-
-
-
 ```csharp
 TSPlayer plr = TShock.Players[args.Who]; //获取TShock玩家对象，args.Who是玩家的索引
 ```
@@ -346,7 +333,7 @@ TSPlayer plr = TShock.Players[args.Who]; //获取TShock玩家对象，args.Who�
 
 
 
-2\. 使用ServerApi钩子实现，在服务器加载完成后(GamePostInitialize)在控制台打印"服务器已经加载完啦!"  
+2. 使用ServerApi钩子实现，在服务器加载完成后(GamePostInitialize)在控制台打印"服务器已经加载完啦!"  
 >提示: GameInitialize和GamePostInitialize的区别：  
  他们都是游戏初始化钩子，但是GameInitialize是开始初始化时触发，而GamePostInitialize是完成初始化时触发(即地图加载完毕，服务器处于可加入状态)  
 
@@ -410,7 +397,7 @@ namespace Plugin
         {
             if (disposing)
             {
-                ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize); //卸载钩子
+                ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize); //注销钩子
             }
             base.Dispose(disposing);
         }
@@ -420,10 +407,8 @@ namespace Plugin
 </details>
 
 
-
-3\. 使用TShockAPI钩子实现，在玩家完成登录后(PlayerHooks.PlayerPostLogin) 给玩家发送"您登录的IP是：xxx.xxx.xxx.xxx"  
+3. 使用TShockAPI钩子实现，在玩家完成登录后(PlayerHooks.PlayerPostLogin) 给玩家发送"您登录的IP是：xxx.xxx.xxx.xxx"  
 提示: 可以使用如下语句获取玩家IP  
-
 
 
 ```csharp
@@ -489,9 +474,8 @@ namespace Plugin
 </details>
 
 
-
-4\. 使用TShockAPI钩子实现，在服务器使用/reload命令\(GeneralHooks.ReloadEvent\)后显示"服务器正在重载\!"  
-> 重点: Reload钩子非常重要，可以让你用/reload统一重载插件  
+4. 使用TShockAPI钩子实现，在服务器使用`/reload`命令(GeneralHooks.ReloadEvent)后显示"服务器正在重载!"  
+> 重点: Reload钩子非常重要，可以让你用`/reload`统一重载插件  
 
 <details>
 <summary>参考答案</summary>
@@ -553,7 +537,7 @@ namespace Plugin
 ```
 </details>
 
-5\. 使用GetDataHandlers实现，在玩家打开箱子时\(GetDataHandlers.ChestOpen\)广播"玩家XXX打开了箱子XXX位于\(X, Y\)"  
+5. 使用`GetDataHandlers`实现，在玩家打开箱子时(`GetDataHandlers.ChestOpen`)广播"玩家XXX打开了箱子XXX位于\(X, Y\)"  
 提示: 用以下代码可以获取箱子对象  
 
 
@@ -625,7 +609,7 @@ namespace Plugin
 </details>
 
 
-6\. 使用GetDataHandlers实现，在玩家切换PVP模式时\(GetDataHandlers.TogglePvp\)发送"本服务器禁止切换PVP模式",并记录日子"玩家XXX试图开启/关闭PVP",并且阻止玩家切换  
+6. 使用GetDataHandlers实现，在玩家切换PVP模式时(GetDataHandlers.TogglePvp)发送"本服务器禁止切换PVP模式",并记录日子"玩家XXX试图开启/关闭PVP",并且阻止玩家切换  
 提示1: 用以下代码可以记录日志  
 
 

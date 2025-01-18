@@ -29,7 +29,7 @@
 ## 5.启动 & 激活Rider  
 1. 点击`配置(Configure)`  
 ![image](https://github.com/user-attachments/assets/b3d29a62-c582-4000-905f-cfbc7650dff5)
-2. 点击`管理许可证(Manage Licenses)`
+2. 点击`管理许可证(Manage Licenses)`  
 ![image](https://github.com/user-attachments/assets/6c52c820-f94c-4302-825a-68ab8ee7c3ae)
 3. 选择`免费非商业许可证`并激活  
 ![image](https://github.com/user-attachments/assets/31e589ae-226c-46e6-ac5c-0967d290eecd)

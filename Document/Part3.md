@@ -86,9 +86,11 @@ private void Cmd(CommandArgs args)
 - 上面的示例代码中，当玩家输入"/cmd2"命令并且拥有"mycommand"权限时，就会向玩家发送一条绿色的消息，内容为"你使用了cmd2命令\!"
 - 若玩家没有相应权限则会提示玩家无权执行该命令，并且日志会记录玩家试图执行命令的行为并发送给打开接受日志的玩家
 
-![1693039687698.png](Resourse/6564_3d9a7cf7f1e3beccc96808a4f7d6f58e.png "1693039687698.png")
+![image](https://github.com/user-attachments/assets/f7d902ee-3595-4712-94ef-207925cbb685)
 
-![1693039745182.png](Resourse/6565_8e0ca1a530b0f77207513a5c2c08591b.png "1693039745182.png")
+
+![image](https://github.com/user-attachments/assets/8dd1eed2-d75c-4d6e-972e-2c3337a5e802)
+
 
   
 - 权限也可以设为无或者多个权限，如下代码可以添加3条分别为/cmd1\(无权限\)、/cmd2\(单权限\)、/cmd3\(多权限\)的命令  
@@ -155,7 +157,8 @@ public override void Initialize()
 
 ### 小结: 你可以把记作回调函数\(例如Vme\)就像一条分界线，回调函数左侧的是权限\(就像"cancanneed"\)，回调函数右侧的是名字\(就像"vme50"、"V我50"\)
 
-![1693035434275.png](Resourse/6557_70095bfacb55c765abda613730e957cd.png "1693035434275.png")
+![image](https://github.com/user-attachments/assets/e093d57a-51ae-4e42-8787-bf428a273c00)
+
 
 ## 4.命令的其他属性​
 
@@ -175,7 +178,8 @@ public override void Initialize()
 
 - 默认为true，AllowServer被设置为false时，非真实玩家\(服务器后台、REST远程命令\)无法使用这个命令  
 
-![1693033540226.png](Resourse/6554_be02d64dc1d2b9edfb6e38a3d1e52d5c.png "1693033540226.png")
+![image](https://github.com/user-attachments/assets/156ddc58-10b3-4fd3-9fb1-effb3f67973e)
+
 
   
 
@@ -183,7 +187,8 @@ public override void Initialize()
 
 - 默认为true，当你设置为false时，服务器日志不会记录执行该命令的具体参数，只会记录命令名\(例如：使用命令/login 123456，只会记录/login\)  
 
-![1693034128151.png](Resourse/6555_cc0ab8905621296012c2bcc2f7309dba.png "1693034128151.png")
+![image](https://github.com/user-attachments/assets/b2f90e7c-9009-468d-b187-46a8ef6d7a47)
+
 
   
 
@@ -193,17 +198,20 @@ public override void Initialize()
 - 这两者基本一样，都是命令帮助文档，使用/help 命令名可以查看  
 - HelpDesc的优先级会更高，当命令的HelpDesc不为null时只会显示HelpDesc  
 
-![1693034557221.png](Resourse/6556_6607929faf39150ab769432b5d1c0810.png "1693034557221.png")
+![image](https://github.com/user-attachments/assets/9c3cdc88-b0e5-4ef5-af34-1fa95057b0cd)
+
 ### 5.CommandArgs参数​
 
 - 当玩家执行我们添加的命令时，服务器会把一些相关的信息"打包"传给我们的回调函数，这些信息就是CommandArgs  
 
-![1693039291623.png](Resourse/6561_c9c245aadefc2a6c8156d03fd3549776.png "1693039291623.png")
+![image](https://github.com/user-attachments/assets/dd4820fb-6a47-4e14-8bab-898eba1fa46f)
+
 
   
 - **它包含Message、Player\(重要\)、TPlayer、Silent、Parameters\(重要\)**
 
-![1693039336869.png](Resourse/6562_b64bc64c512db4b5338b2f6030ba72e1.png "1693039336869.png")
+![image](https://github.com/user-attachments/assets/b59692bd-a44d-4ea7-a581-3a813155995a)
+
 
 
 ### Parameters​
@@ -214,7 +222,8 @@ public override void Initialize()
 
 
 
-![1693039353193.png](Resourse/6563_469e6a235aae830377124bf3608524ab.png "1693039353193.png")
+![image](https://github.com/user-attachments/assets/263c7307-baa5-41df-888e-efd02370254a)
+
 
   
 >你可以使用switch-case结构实现子命令功能，示例如下：  

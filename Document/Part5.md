@@ -653,7 +653,8 @@ namespace Plugin
 
 ### 3.编写指令"/看看你的 \{玩家名\} ",执行后返回玩家猪猪储蓄罐的钱币详情​
 
-![1704013371999.png](Resourse/6658_bd45d438d93e57664d2d7edb8448ffdd.png "1704013371999.png")
+![image](https://github.com/user-attachments/assets/aa40b3c1-c348-473f-aca1-8cc709224feb)
+
 
 <details>
 <summary>参考答案</summary>

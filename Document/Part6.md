@@ -45,19 +45,22 @@ WTF?
 
 1. 直接在可以执行语句的地方打一个NetMessage.orig\_SendData，然后右键orig\_SendData，点击转到定义,等待一下反编译我们就能看到NetMessage.orig\_SendData的代码了  
 
-![1708706875142.png](Resourse/6704_13e87dfe295685f2e0fe714dd4892f00.png "1708706875142.png")
+![image](https://github.com/user-attachments/assets/bfcfbacc-3a63-46be-9f66-3a7f64cf2955)
+
 
   
 2. 往下翻，我们会发现有一个switch-case结构, 其中case中的数字就是数据包的编号  
 
-![1708706943347.png](Resourse/6705_8a74344310bc4e2b6ef78c234bd8a1ad.png "1708706943347.png")
+![image](https://github.com/user-attachments/assets/ef96205f-b82a-4a8d-b0ed-9c024f1d8ff6)
+
 
   
 - 以修改玩家最大生命为例(修改了玩家的statLifeMax\) 
  1. 我们直接按Ctrl+F搜索statLifeMax  
  2. 此时搜索到16号数据包的case，所以我们需要发送的就是16号数据包(PacketTypes.PlayerHp)
-![1708707136699.png](Resourse/6706_00f88e9647b456ad27b90176db8ac9cf.png "1708707136699.png")
-3. 我们仔细查看这个case部分不难看出, number\(参数1\)，就是玩家的索引\(number为0时发送索引为0的玩家的生命数据，number为1时发送索引为1的玩家的生命数据...\) \[number2对应参数2，number3对应参数3，有些数据包需要用到字符串参数\(例如: 弹幕文字、断开连接等\)\]  
+![image](https://github.com/user-attachments/assets/378110c7-74ac-4cf3-a48b-25b265e8c911)
+
+ 3. 我们仔细查看这个case部分不难看出, number\(参数1\)，就是玩家的索引\(number为0时发送索引为0的玩家的生命数据，number为1时发送索引为1的玩家的生命数据...\) \[number2对应参数2，number3对应参数3，有些数据包需要用到字符串参数\(例如: 弹幕文字、断开连接等\)\]  
 > 注: 你可以用类似的方法查看PacketTypes的定义来找到数据包类型\(16=>PacketTypes.PlayerHp\)
 如果你嫌麻烦也可以直接使用"\(PacketTypes\)数据包号"  
 \[例如: \(PacketTypes\)16\]  
@@ -83,7 +86,8 @@ private void TestCmd(CommandArgs args) //测试命令 (这里只是方便演示)
 2. 然后我们转到NetMessage.orig\_SendData\(\)搜索downedPlantBoss，找到对应的位置后，详细的阅读这个case中的代码找number，  
 3. 发现这个case中没有使用任何number或者text \(不需要任何参数和文本\)  
 
-![1708708614064.png](Resourse/6707_54f5e9df17626e6b9ba95cdb727592b4.png "1708708614064.png")
+![image](https://github.com/user-attachments/assets/b1016bc4-3cf6-4589-9c62-8be0430bf44f)
+
 
   
 4. 所以我们直接调用下面的方法就可以发送数据包了 \(由于7号数据包没有使用任何参数和文本，所以我们直接只填入包类型就好\)  
@@ -103,17 +107,20 @@ private void TestCmd(CommandArgs args)
 1. 有一个编写插件常常用到的数据包PlayerSlot\(5号\)，这个数据包的作用是修改玩家背包的物品\(包括装备栏的物品\)  
 我们转到NetMessage.orig\_SendData\(\) 找到5号的对应代码  
 
-![1708711116817.png](Resourse/6713_4ddb086dc4ca67f8a0cca17bc2fe0a8f.png "1708711116817.png")
+![image](https://github.com/user-attachments/assets/390c270e-fb23-4fc4-bac9-2eb6fa9eb988)
+
 
   
 2. 从上面的代码我们能发现number\(参数1\)是玩家的索引\(Index\), number2\(参数2\)是对应格子的索引，而number3\(参数3\)却很难看出他的作用，此时我们可以通过查看MessageBuffer.GetData的定义来找到number3的作用  
 
-![1708710659940.png](Resourse/6710_9dd9e4830193dd592685ab2361c18066.png "1708710659940.png")
+![image](https://github.com/user-attachments/assets/3b324de0-71b4-4fcc-8d14-8d966318cd2e)
+
 
   
 3. 根据NetMessage.orig\_SendData\(\)中代码number3在第4次被Write进数据包, 那么number3在MessageBuffer.GetData中也会在第4次被Read进变量中，所以MessageBuffer.GetData中的num9就是NetMessage.orig\_SendData\(\)中的number3\(参数3\)，然后我们发现，在使用Prefix方法的时候使用了num9\(也就是number3\)，从wiki上我们可以知道prefix是修饰语的意思，所以number3就是修饰语ID  
 
-![1708711049758.png](Resourse/6712_fffd7a50d2fd412367e555a28f4fdbde.png "1708711049758.png")
+![image](https://github.com/user-attachments/assets/36559065-9475-4402-b9bc-4ec1ec5c8052)
+
 
   
 4. 得出:  

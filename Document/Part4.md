@@ -408,9 +408,11 @@ ServerApi.Hooks.GameInitialize.Register(this,(args) => { Console.WriteLine("触�
 ServerApi.Hooks.GamePostInitialize.Register(this,(args) => { Console.WriteLine("触发GamePostInitialize"); });
 ```
 
-![1697341632062.png](Resourse/6580_7f71773250c81c71e75418ad931d775c.png "1697341632062.png")
+![image](https://github.com/user-attachments/assets/b6b5e8a8-bcf6-4f3c-a4ac-fc3fd4e0eb23)
 
-![1697341669111.png](Resourse/6582_eb627fbcafdd404cf76b8bbf9d05e5c3.png "1697341669111.png")
+
+![Uploading image.png…]()
+
 
   
 

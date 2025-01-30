@@ -12,7 +12,10 @@
 
 
 ## 举个例子：
-假如你需要实现当玩家说“wdnmd”时把他踢出去，那么你就可以注册一个`ServerChat`钩子，并且调用`OnChatHandler`方法处理事件。你需要在`OnChatHandler`方法中编写代码，识别玩家的聊天是否包含`wdnmd`。最后别忘了注销你的钩子：
+假如你需要实现当玩家说“wdnmd”时把他踢出去，那么你就可以注册一个`ServerChat`钩子，并且调用`OnChatHandler`方法处理事件。你需要在`OnChatHandler`方法中编写代码，识别玩家的聊天是否包含`wdnmd`,最后别忘了注销你的钩子。
+> [!NOTE]  
+> 钩子并不一定是下面这种固定的形式，下面这个属于`ServerApi`钩子的一种，并不是所有的钩子都是下面这种形式，但是大同小异  
+> 下面只是简单列举例子，看不懂真的没关系，直接复制就好
 ```csharp
 //以下为示例代码，看不懂没事，我们慢慢学
 using System.Reflection;
@@ -75,7 +78,11 @@ namespace NoEggplant
 ## 代码解析：
 
 ### 注册钩子
-钩子不会自己挂，所以在用钩子之前我们必须注册它。不同类型的钩子有不同的注册语句，`ServerApi.Hooks.ServerChat.Register(this, OnChatHandler);`是`ServerApi`钩子的注册语句，`this`表示钩子在这个类里(不会不要管), `OnChatHandler`则是钩子的处理方法，这点和命令有点像
+注册钩子好比你设置一条定时命令一样，我们要设置`什么时候触发我们的处理方法`，我们的`处理方法的名字`。不同类型的钩子有不同的注册语句，`ServerApi.Hooks.ServerChat.Register(this, OnChatHandler);`是`ServerApi`钩子的注册语句，`ServerApi.Hooks`是钩子存放的位置，`ServerChat`则是我们注册钩子的事件(服务器聊天), `this`表示钩子在这个类里(不会不要管), `OnChatHandler`则是钩子的处理方法，这点和命令有点像。这句话完整的意思是注册一个`ServerApi钩子`，在发生事件`ServerChat(服务器聊天)`时调用处理方法`OnChatHandler`
+> [!NOTE]  
+> 处理方法需要开发者自己命名，一般命名为`On+钩子名`或者 `钩子名+Handler`  
+> 例如: `ServerChat钩子` -> `OnServerChat` / `ServerChatHandler`  
+> 当然，因为是开发者自己去名字，只要你乐意其实啥都行，但最好按照规范来
 ```csharp
 //插件加载时执行的代码
 public override void Initialize()
@@ -142,7 +149,62 @@ namespace NoEggplant
 ## 常用钩子​
 
 ### ServerApi钩子  
-`ServerApi`的钩子覆盖了服务器大部分可能需要挂钩的事件，同时值得注意的是`ServerApi`钩子中参数的命名和Terraria原版相似  
+`ServerApi`的钩子覆盖了服务器大部分可能需要挂钩的事件，同时值得注意的是`ServerApi`钩子中参数的命名和Terraria原版相似 
+<details>
+<summary> ServerApi钩子汇总</summary>  
+
+| 钩子名称                     | 参数含义                                                                 | 钩子含义                                                                 |
+|------------------------------|--------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| **GameUpdate**               | -                                                                        | 游戏主循环更新时触发                                                     |
+| **GamePostUpdate**           | -                                                                        | 游戏主循环更新完成后触发                                                 |
+| **GameHardmodeTileUpdate**   | `X` (方块的X坐标), `Y` (方块的Y坐标), `Type` (方块的类型)                | 硬模式下方块更新时触发                                                   |
+| **GameInitialize**           | -                                                                        | 游戏初始化时触发                                                         |
+| **GamePostInitialize**       | -                                                                        | 游戏初始化完成后触发                                                     |
+| **GameWorldConnect**         | -                                                                        | 世界加载完成并连接时触发                                                 |
+| **GameWorldDisconnect**      | -                                                                        | 世界断开连接时触发                                                       |
+| **GameStatueSpawn**          | `X` (生成位置的X坐标), `Y` (生成位置的Y坐标), `Type` (生成的NPC或物品类型), `Npc` (是否为NPC生成) | 雕像生成NPC或物品时触发                                                  |
+| **ItemSetDefaultsInt**       | `Info` (物品的ID), `Object` (物品实例)                                   | 通过ID设置物品属性时触发                                                 |
+| **ItemSetDefaultsString**    | `Info` (物品的名称), `Object` (物品实例)                                 | 通过名称设置物品属性时触发                                               |
+| **ItemNetDefaults**          | `Info` (物品的网络ID), `Object` (物品实例)                               | 设置物品的网络默认值时触发                                               |
+| **ItemForceIntoChest**       | `Chest` (目标箱子), `Item` (被强制放入的物品), `Player` (触发此操作的玩家) | 物品被强制放入箱子时触发                                                 |
+| **NetSendData**              | `MsgId` (数据包类型), `remoteClient` (目标客户端ID), `text` (发送的文本消息)等 | 服务器发送数据包前触发                                                   |
+| **NetSendNetData**           | `netManager` (网络管理器), `socket` (目标套接字), `packet` (原始网络数据包) | 发送底层网络数据前触发                                                   |
+| **NetGetData**               | `MsgID` (接收的数据包类型), `Msg` (数据缓冲区), `Index` (数据起始索引)等 | 服务器接收数据包时触发                                                   |
+| **NetGreetPlayer**           | `Who` (玩家ID)                                                           | 服务器向玩家发送欢迎消息时触发                                           |
+| **NetSendBytes**             | `Socket` (目标客户端), `Buffer` (发送的字节数据), `Offset` (数据偏移)等 | 发送原始字节数据前触发                                                   |
+| **NetNameCollision**         | `Who` (玩家ID), `Name` (冲突的玩家名称)                                  | 玩家名称冲突时触发                                                       |
+| **NpcKilled**                | `npc` (被击杀的NPC实例)                                                  | NPC被击杀时触发                                                          |
+| **NpcSetDefaultsInt**        | `Info` (NPC的ID), `Object` (NPC实例)                                     | 通过ID设置NPC属性时触发                                                  |
+| **NpcSetDefaultsString**     | `Info` (NPC的名称), `Object` (NPC实例)                                   | 通过名称设置NPC属性时触发                                                |
+| **NpcNetDefaults**           | `Info` (NPC的网络ID), `Object` (NPC实例)                                 | 设置NPC的网络默认值时触发                                                |
+| **NpcStrike**                | `Npc` (被攻击的NPC), `Damage` (伤害值), `KnockBack` (击退值)等            | NPC受到攻击时触发                                                        |
+| **NpcTransform**             | `NpcId` (变换后的NPC ID)                                                 | NPC形态变化时触发                                                        |
+| **NpcSpawn**                 | `NpcId` (生成的NPC ID)                                                   | NPC生成前触发                                                            |
+| **NpcLootDrop**              | `ItemId` (掉落的物品ID), `Stack` (掉落数量), `Position` (掉落位置)等     | NPC掉落物品时触发                                                        |
+| **NpcTriggerPressurePlate**  | `Object` (触发压力板的NPC), `TileX` (压力板的X坐标), `TileY` (压力板的Y坐标) | NPC触发压力板时触发                                                      |
+| **DropBossBag**              | `ItemId` (Boss袋的掉落物品ID), `NpcId` (关联的Boss ID)等                 | Boss死亡时掉落Boss袋前触发                                               |
+| **NpcAIUpdate**              | `Npc` (正在更新AI的NPC)                                                  | NPC的AI逻辑更新时触发                                                    |
+| **PlayerUpdatePhysics**      | `Player` (玩家实例)                                                      | 玩家物理状态更新时触发                                                   |
+| **PlayerTriggerPressurePlate** | `Object` (触发压力板的玩家), `TileX` (压力板的X坐标), `TileY` (压力板的Y坐标) | 玩家触发压力板时触发                                                     |
+| **ProjectileSetDefaults**    | `Info` (弹幕的ID), `Object` (弹幕实例)                                   | 设置弹幕属性时触发                                                       |
+| **ProjectileTriggerPressurePlate** | `Object` (触发压力板的弹幕), `TileX` (压力板的X坐标), `TileY` (压力板的Y坐标) | 弹幕触发压力板时触发                                                     |
+| **ProjectileAIUpdate**       | `Projectile` (正在更新AI的弹幕)                                          | 弹幕的AI逻辑更新时触发                                                   |
+| **ServerCommand**            | `Command` (输入的服务器命令)                                             | 执行服务器控制台命令前触发                                               |
+| **ServerConnect**            | `Who` (尝试连接的玩家ID)                                                 | 玩家尝试连接服务器时触发                                                 |
+| **ServerJoin**               | `Who` (玩家的ID)                                                         | 玩家成功加入服务器时触发                                                 |
+| **ServerLeave**              | `Who` (离开的玩家ID)                                                     | 玩家离开服务器时触发                                                     |
+| **ServerChat**               | `Who` (发送消息的玩家ID), `Text` (聊天内容), `CommandId` (命令类型)      | 服务器处理聊天消息前触发                                                 |
+| **ServerBroadcast**          | `Message` (广播的消息内容), `Color` (消息颜色)                           | 服务器发送广播消息前触发                                                 |
+| **ServerSocketReset**        | `Socket` (被重置的客户端套接字)                                          | 客户端套接字被重置时触发                                                 |
+| **WorldSave**                | `ResetTime` (是否重置游戏时间)                                           | 世界保存前触发                                                           |
+| **WorldStartHardMode**       | -                                                                        | 世界即将进入困难模式时触发                                               |
+| **WorldMeteorDrop**          | `X` (陨石坠落的X坐标), `Y` (陨石坠落的Y坐标)                             | 陨石坠落前触发                                                           |
+| **WorldChristmasCheck**      | `Xmas` (当前是否为圣诞节事件)                                            | 检查圣诞节事件状态时触发                                                 |
+| **WorldHalloweenCheck**      | `Halloween` (当前是否为万圣节事件)                                       | 检查万圣节事件状态时触发                                                 |
+| **WorldGrassSpread**         | `TileX` (草蔓延的方块X坐标), `TileY` (草蔓延的方块Y坐标), `Dirt` (泥土类型), `Grass` (草的类型) | 草或腐化/神圣蔓延时触发                                                  |
+| **WireTriggerAnnouncementBox** | `TileX` (公告牌的X坐标), `TileY` (公告牌的Y坐标), `Text` (公告牌的文本内容) | 触发公告牌时（如电线激活）触发                                           |
+
+</details>
 
 ```csharp
 //插件加载时执行的代码
@@ -189,10 +251,10 @@ private void OnChat(ServerChatEventArgs args)
 
  类型 | 包含钩子 
 -------|----------
- AccountHooks | AccountCreate\(创建账号\)、AccountDelete\(删除账号\) 
- PlayerHooks | PlayerChat\(玩家聊天\)、PlayerCommand\(玩家执行命令\)、PlayerLogout\(玩家登出\)、PlayerPreLogin\(玩家登录前\)、PlayerPostLogin\(玩家登录后\)、PlayerPermission\(权限检查\)、PlayerHasBuildPermission\(玩家建筑权限检查\)、PlayerProjbanPermission\(玩家服务器忽略禁用弹幕权限检查\)、  PlayerTilebanPermission\(玩家服务器忽略禁用图格权限检查\)、  PlayerItembanPermission\(玩家服务器忽略违禁物品权限检查\) 
- GeneralHooks | ReloadEvent\(服务器重载\[使用/reload命令\]\) |
- RegionHooks | RegionCreated\(区域创建\)、RegionDeleted\(区域删除\)、RegionRenamed\(区域重命名\)、RegionEntered\(玩家进入区域\)、  RegionLeft\(玩家离开区域\) 
+ AccountHooks | AccountCreate(创建账号)、AccountDelete(删除账号) 
+ PlayerHooks | PlayerChat(玩家聊天)、PlayerCommand(玩家执行命令)、PlayerLogout(玩家登出)、PlayerPreLogin(玩家登录前)、PlayerPostLogin(玩家登录后)、PlayerPermission(权限检查)、PlayerHasBuildPermission(玩家建筑权限检查)、PlayerProjbanPermission(玩家服务器忽略禁用弹幕权限检查)、  PlayerTilebanPermission(玩家服务器忽略禁用图格权限检查)、  PlayerItembanPermission(玩家服务器忽略违禁物品权限检查) 
+ GeneralHooks | ReloadEvent(使用/reload命令重载配置) |
+ RegionHooks | RegionCreated(区域创建)、RegionDeleted(区域删除)、RegionRenamed(区域重命名)、RegionEntered(玩家进入区域)、  RegionLeft(玩家离开区域) 
 
 TShockAPI钩子使用方法:  
 

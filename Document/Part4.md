@@ -16,6 +16,7 @@
 > [!NOTE]  
 > 钩子并不一定是下面这种固定的形式，下面这个属于`ServerApi`钩子的一种，并不是所有的钩子都是下面这种形式，但是大同小异  
 > 下面只是简单列举例子，看不懂真的没关系，直接复制就好
+
 ```csharp
 //以下为示例代码，看不懂没事，我们慢慢学
 using System.Reflection;
@@ -409,11 +410,6 @@ ServerApi.Hooks.GamePostInitialize.Register(this,(args) => { Console.WriteLine("
 ```
 
 ![image](https://github.com/user-attachments/assets/b6b5e8a8-bcf6-4f3c-a4ac-fc3fd4e0eb23)
-
-
-![Uploading image.png…]()
-
-
   
 
 <details>

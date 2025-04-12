@@ -1,4 +1,4 @@
-# Terraria Packet 数据包参考表格\(1.4.4.9\) \(by @xuyuwtu\)
+# Part 6.5.1 数据包参考表格\(1.4.4.9\) \(by @xuyuwtu\)
 
 ### ConnectRequest \[1\]
 | Size | Description | Type | Notes |

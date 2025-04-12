@@ -43,17 +43,18 @@
     表示服务器连接的每个客户端的连接状态
   - 客户端连接状态 `Netplay.Connection`
     表示本地客户端的连接状态
-  | ID | 名字 | 含义 |
-  |:----:|------|------|
-  |-1 | AwaitingPassword | 服务器受密码保护，连接处于等待状态，直到客户端发送密码。 |
-  | 0 | AwaitingVersionCheck | TCP连接已建立，客户端必须验证其版本。 |
-  | 1 | AssigningPlayerSlot | 服务器已接受客户端的连接密码/已验证客户端的版本字符串正确。客户端正在被分配玩家位置。 |
-  | 2 | AwaitingPlayerInfo | 客户端已收到玩家位置，服务器正在等待玩家信息。 |
-  | 3 | RequestingWorldData | 已收到玩家信息，客户端正在请求世界数据。 |
-  | 4 | ReceivingWorldData | 世界数据正在发送给客户端。 |
-  | 5 | FinalizingWorldLoad | 已接收世界数据，客户端正在完成加载。 |
-  | 6 | RequestingTileData | 客户端正在请求图块数据。 |
-  |10 | Complete | 连接过程完成（玩家已生成），客户端已完全加入游戏。 |
+    
+  | ID | 名字                  | 含义                                          |
+  |:--:|----------------------|---------------------------------------------|
+  | -1 | AwaitingPassword     | 服务器受密码保护，连接处于等待状态，直到客户端发送密码。                |
+  | 0  | AwaitingVersionCheck | TCP连接已建立，客户端必须验证其版本。                        |
+  | 1  | AssigningPlayerSlot  | 服务器已接受客户端的连接密码/已验证客户端的版本字符串正确。客户端正在被分配玩家位置。 |
+  | 2  | AwaitingPlayerInfo   | 客户端已收到玩家位置，服务器正在等待玩家信息。                     |
+  | 3  | RequestingWorldData  | 已收到玩家信息，客户端正在请求世界数据。                        |
+  | 4  | ReceivingWorldData   | 世界数据正在发送给客户端。                               |
+  | 5  | FinalizingWorldLoad  | 已接收世界数据，客户端正在完成加载。                          |
+  | 6  | RequestingTileData   | 客户端正在请求图块数据。                                |
+  | 10 | Complete             | 连接过程完成（玩家已生成），客户端已完全加入游戏。                   |
 
 - 在Terraria中负责解析数据包的`MessageBuffer.GetData`的前几个数据包就有用来判断玩家连接状态的代码
   ```csharp

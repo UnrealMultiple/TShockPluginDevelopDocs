@@ -40,8 +40,7 @@
       int x = this.reader.ReadInt32(); //先读取第一个int，即TileX
       int y = this.reader.ReadInt32(); //读取第二个int，即TileY
      ```
-  > [!NOTE]
-  > 每次使用reader.Read...()读取数据后,`this.reader.BaseStream.Position`都会移动到这个字段之后，即下一个字段的开头，你可以把`this.reader.BaseStream.Position`理解为reader的指针，每次读完字段指针就会移动到下一个字段的开头(前提是你读取的字段类型是正确的)
+      > 每次使用reader.Read...()读取数据后,`this.reader.BaseStream.Position`都会移动到这个字段之后，即下一个字段的开头，你可以把`this.reader.BaseStream.Position`理解为reader的指针，每次读完字段指针就会移动到下一个字段的开头(前提是你读取的字段类型是正确的)
    #### 初步分析
    ```csharp
     case 52: 
@@ -75,8 +74,7 @@
           NetMessage.SendTileSquare(-1, num65, num66, 2);
           break;
    ```
-   `ChestUnlock`并不像`TileGetSection`那样有清晰的结构，我们不知道`number2_7`，`num65`，`num66`表示什么，这时我们就需要`NetMessage.orig_SendData`辅助判断
-
+   `ChestUnlock`并不像`TileGetSection`那样有清晰的结构，我们不知道`number2_7`，`num65`，`num66`表示什么，如果你完全是入门小白，你遇到这样的反编译代码绝对会一脸懵逼，这时我们就需要`NetMessage.orig_SendData`辅助判断(不一定有用)
    
 ### 反编译NetMessage.orig_SendData
 1. 在随便一个方法里面加一句`NetMessage.orig_SendData`  
@@ -260,3 +258,7 @@ private void OnGetData(GetDataEventArgs args)
     }
 }
 ```
+## 小结
+通过以上的例子，我们需要学会如何在插件开发中去利用反编译来获取数据包的结构，这对于新人来说很难，但这对插件开发非常重要。
+> [!IMPORTANT]
+> 如果你需要的数据包有GetDataHandlers，那么请使用`GetDataHandlers`提供的对应钩子，不要造轮子遭罪...

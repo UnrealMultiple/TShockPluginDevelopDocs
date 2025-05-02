@@ -2,8 +2,31 @@
 
 本章你将学到：  
 
-* TShock插件模板各部分的作用
-* TShock插件的初始化顺序
+- TShock插件模板各部分的作用
+- TShock插件的初始化顺序
+
+## 文件结构
+```
+📂MyFirstPlugin
+├── 📂MyFirstPlugin //项目文件夹
+│   ├── 📂bin //构建产物
+│   │   └── 📂Debug //Debug编译模式下的构建产物
+│   │       └── 📂net6.0 //目标.NET版本，
+│   │           ├── 📜Myfirstplugin.deps.json //依赖清单的文件，用不到
+│   │           ├── 📜Myfirstplugin.dll //插件本体
+│   │           └── 📜Myfirstplugin.pdb //和插件一起安装，报错后可以显示相关方法在源码中的行数
+|   |       📂Release //Release编译模式下的构建产物
+│   │       └── 📂net6.0
+│   │           ├── 📜Myfirstplugin.deps.json //同上
+│   │           ├── 📜Myfirstplugin.dll //同上
+│   │           └── 📜Myfirstplugin.pdb //同上
+│   ├── 📂obj //用于存放编译的临时文件，
+│   ├── 📜Myfirstplugin.csproj //项目配置文件，这个文件的名字决定插件程序集的名字
+│   ├── 📜Plugin.cs //插件本体源码文件
+│   ├── 📜Config.cs //插件配置相关源码文件，按需添加
+│   └── 📜Database.cs //插件数据库相关源码文件，按需添加
+└── 📜MyFirstPlugin.sln //项目的解决方案，用来存放项目组的配置
+```
 
 ## 插件模板​
 以下是一个常用的TShock插件模板

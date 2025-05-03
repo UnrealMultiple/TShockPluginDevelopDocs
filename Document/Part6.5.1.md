@@ -376,7 +376,7 @@ int y = this.reader.ReadInt32(); //玩家出生点Y坐标
 #### SendData
 | PacketTypes | Text | number | number2 | number3 | number4 | number5 |
 | ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
-|  TileGetSection     |  PlayerSpawnX(玩家出生点X坐标)     |  PlayerSpawnY(玩家出生点X坐标)   |    无    |   无   |    无   |    无      |
+|  TileGetSection     | 无 | PlayerSpawnX(玩家出生点X坐标)     |  PlayerSpawnY(玩家出生点X坐标)   |   无   |    无   |    无      |
 
 
 ### Status \[9\]

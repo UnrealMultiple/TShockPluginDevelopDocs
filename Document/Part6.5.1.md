@@ -197,67 +197,76 @@ short type = (int) this.reader.ReadInt16(); //物品ID
 
 
 ### WorldInfo \[7\]
-| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
-| ---- | ----------- | ---- | ----- |
-| 4 | Time | Int32 | \- |
-| 1 | Flag1 | Byte | BitFlags:<br/> 1 = Day Time<br/> 2 = Blood Moon<br/> 4 = Eclipse |
-| 1 | Moon Phase | Byte | \- |
-| 2 | Max Tile X | Int16 | \- |
-| 2 | Max Tile X | Int16 | \- |
-| 2 | Spawn Tile X | Int16 | \- |
-| 2 | Spawn Tile Y | Int16 | \- |
-| 2 | World Surface | Int16 | \- |
-| 2 | Rock Layer | Int16 | \- |
-| 4 | Wolrd ID | Int32 | \- |
-| ? | Wolrd Name | String | \- |
-| 16 | Unique ID | Byte\[16\] | \- |
-| 1 | Game Mode | Byte | \- |
-| 8 | World Generator Version | UInt64 | \- |
-| 1 | Moon Type | Byte | \- |
-| 1 | Tree Background 1 | Byte | \- |
-| 1 | Tree Background 2 | Byte | \- |
-| 1 | Tree Background 3 | Byte | \- |
-| 1 | Tree Background 4 | Byte | \- |
-| 1 | Corrupt Background | Byte | \- |
-| 1 | Jungle Background | Byte | \- |
-| 1 | Snow Background | Byte | \- |
-| 1 | Hallowd Background | Byte | \- |
-| 1 | Cirmson Background | Byte | \- |
-| 1 | Desert Background | Byte | \- |
-| 1 | Ocean Background | Byte | \- |
-| 1 | Mushroom Background | Byte | \- |
-| 1 | Underworld Background | Byte | \- |
-| 1 | Ice Background Style | Byte | \- |
-| 1 | Jungle Background Style | Byte | \- |
-| 1 | Hell Background Style | Byte | \- |
-| 4 | Wind Speed | Single | \- |
-| 1 | Cloud Number | Byte | \- |
-| 12 | Tree X | Int32\[3\] | \- |
-| 4 | Tree Style X | Byte\[4\] | \- |
-| 12 | Cave Back X | Int32\[3\] | \- |
-| 4 | Cave Back Style | Byte\[4\] | \- |
-| 13 | Tree Tops | Byte\[13\] | Forest1<br/> Forest2<br/> Forest3<br/> Forest4<br/> Corruption<br/> Jungle<br/> Snow<br/> Hallow<br/> Crimson<br/> Desert<br/> Ocean<br/> Glowing Mushroom<br/> Underworld |
-| 4 | Rain | Single | \- |
-| 1 | Flag2 | Byte | BitFlags:<br/> 1 = Shadow Orb Smashed<br/> 2 = Downed Boss 1<br/> 4 = Downed Boss 2<br/> 8 = Downed Boss 3<br/> 16 = Hard Mode<br/> 32 = Downed Clown<br/> 64 = Server Side Character<br/> 128 = Downed Plant Boss |
-| 1 | Flag3 | Byte | BitFlags:<br/> 1 = Mech Boss Downed 1<br/> 2 = Mech Boss Downed 2<br/> 4 = Mech Boss Downed 3<br/> 8 = Mech Boss Any Downed<br/> 16 = Cloud BG Active<br/> 32 = Crimson<br/> 64 = Pumpkin Moon<br/> 128 = Snow Moon |
-| 1 | Flag4 | Byte | BitFlags:<br/> 1 = None<br/> 2 = FastForwardTime<br/> 4 = Slime Rain<br/> 8 = Downed Slime King<br/> 16 = Downed Queen Bee<br/> 32 = Downed Fishron<br/> 64 = Downed Martians<br/> 128 = Downed Ancient Cultist |
-| 1 | Flag5 | Byte | BitFlags:<br/> 1 = Downed Moon Lord<br/> 2 = Downed Pumking<br/> 4 = Downed Mourning Wood<br/> 8 = Downed Ice Queen<br/> 16 = Downed Santank<br/> 32 = Downed Everscream<br/> 64 = Downed Golem<br/> 128 = Birthday Party |
-| 1 | Flag6 | Byte | BitFlags:<br/> 1 = Downed Pirates<br/> 2 = Downed Frost Legion<br/> 4 = Downed Goblins<br/> 8 = Sandstorm<br/> 16 = DD2 Event<br/> 32 = Downed DD2 Tier 1<br/> 64 = Downed DD2 Tier 2<br/> 128 = Downed DD2 Tier 3 |
-| 1 | Flag7 | Byte | BitFlags:<br/> 1 = Combat Book Used<br/> 2 = Manual Lanterns<br/> 4 = Downed Solar Tower<br/> 8 = Downed Vortex Tower<br/> 16 = Downed Tower Nebula<br/> 32 = Downed Stardust Tower<br/> 64 = Force Halloween (day)<br/> 128 = Force XMas (day) |
-| 1 | Flag8 | Byte | BitFlags:<br/> 1 = Bought Cat<br/> 2 = Bought Dog<br/> 4 = Bought Bunny<br/> 8 = Free Cake<br/> 16 = Drunk World<br/> 32 = Downed Empress of Light<br/> 64 = Downed Queen Slime<br/> 128 = GetGoodWorld |
-| 1 | Flag9 | Byte | BitFlags:<br/> 1 = Tenth Anniversar World<br/> 2 = Dont Starve World<br/> 4 = Downed Deerclops<br/> 8 = Not The Bees World<br/> 16 = Remix World<br/> 32 = Unlocked Slime Blue Spawn<br/> 64 = Combat Book Volume Two Was Used<br/> 128 = Peddlers Satchel Was Used |
-| 1 | Flag10 | Byte | BitFlgs:<br/> 1 = Unlocked Slime Green Spawn<br/> 2 = Unlocked Slime Old Spawn<br/> 4 = Unlocked Slime Purple Spawn<br/> 8 = Unlocked Slime Rainbow Spawn<br/> 16 = Unlocked Slime Red Spawn<br/> 32 = Unlocked Slime Yellow Spawn<br/> 64 = Unlocked SlimeCopper Spawn<br/> 128 = Fast Forward Time To Dusk |
-| 1 | Flag11 | Byte | 1 = NoTrapsWorld<br/> 2 = ZenithWorld<br/> 4 = Unlocked Truffle Spawn<br/> |
-| 2 | Copper Ore Tier | Int16 | \- |
-| 2 | Iron Ore Tier | Int16 | \- |
-| 2 | Silver Ore Tier | Int16 | \- |
-| 2 | Gold Ore Tier | Int16 | \- |
-| 2 | Cobalt Ore Tier | Int16 | \- |
-| 2 | Mythril Ore Tier | Int16 | \- |
-| 2 | Adamantite Ore Tier | Int16 | \- |
-| 1 | Invasion Type | SByte | \- |
-| 8 | Lobby ID | UInt64	| \- |
-| 4 | Sandstorm Severity | Single | \- |
+#### Server -> Client
+服务器向客户端同步世界信息
+### WorldInfo [7]  
+#### Server -> Client (Sync)  
+服务器向客户端同步世界信息  
+
+#### 结构  
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |  
+|------|------|------|------|  
+| 4 | Time(游戏时间) | Int32 | 当前世界时间（tick数） |  
+| 1 | WorldFlags1(世界标记1) | Byte | BitFlags(位标记):<br>0=IsDayTime(白天)<br>1=IsBloodMoon(血月)<br>2=IsEclipse(日食) |  
+| 1 | MoonPhase(月相) | Byte | 当前月相 (0-7) |  
+| 2 | MaxTilesX(最大宽度) | Int16 | 世界最大X坐标（格数） |  
+| 2 | MaxTilesY(最大高度) | Int16 | 世界最大Y坐标（格数） |  
+| 2 | SpawnX(出生点X) | Int16 | 世界出生点X坐标 |  
+| 2 | SpawnY(出生点Y) | Int16 | 世界出生点Y坐标 |  
+| 2 | WorldSurface(地表高度) | Int16 | 地表层高度 |  
+| 2 | RockLayer(岩石层高度) | Int16 | 岩石层高度 |  
+| 4 | WorldID(世界ID) | Int32 | 世界唯一标识符 |  
+| ? | WorldName(世界名称) | String | 世界名称字符串 |  
+| 1 | GameMode(游戏模式) | Byte | 0=经典,1=专家,2=大师,3=旅行 |  
+| 16 | UniqueID(唯一ID) | Byte[16] | 世界文件唯一标识 |  
+| 8 | WorldVersion(世界版本) | UInt64 | 世界生成器版本号 |  
+| 1 | MoonType(月亮类型) | Byte | 月亮外观类型 |  
+| 1 | TreeBG1(树木背景1) | Byte | 第一类树木背景样式 |  
+| 1 | TreeBG2(树木背景2) | Byte | 第二类树木背景样式 |  
+| 1 | TreeBG3(树木背景3) | Byte | 第三类树木背景样式 |  
+| 1 | TreeBG4(树木背景4) | Byte | 第四类树木背景样式 |  
+| 1 | CorruptBG(腐化背景) | Byte | 腐化之地背景样式 |  
+| 1 | JungleBG(丛林背景) | Byte | 丛林背景样式 |  
+| 1 | SnowBG(雪地背景) | Byte | 雪地背景样式 |  
+| 1 | HallowBG(神圣背景) | Byte | 神圣之地背景样式 |  
+| 1 | CrimsonBG(猩红背景) | Byte | 猩红之地背景样式 |  
+| 1 | DesertBG(沙漠背景) | Byte | 沙漠背景样式 |  
+| 1 | OceanBG(海洋背景) | Byte | 海洋背景样式 |  
+| 1 | MushroomBG(蘑菇背景) | Byte | 蘑菇地背景样式 |  
+| 1 | UnderworldBG(地狱背景) | Byte | 地狱背景样式 |  
+| 1 | IceBackStyle(冰雪背景) | Byte | 冰雪背景样式 |  
+| 1 | JungleBackStyle(丛林背景) | Byte | 丛林背景样式 |  
+| 1 | HellBackStyle(地狱背景) | Byte | 地狱背景样式 |  
+| 4 | WindSpeed(风速) | Single | 当前风速 |  
+| 1 | CloudCount(云层数量) | Byte | 当前云层数量 |  
+| 12 | TreeX(特殊树木X坐标) | Int32[3] | 3棵特殊树木的X坐标 |  
+| 4 | TreeStyle(树木样式) | Byte[4] | 4种树木样式 |  
+| 12 | CaveBackX(洞穴背景X坐标) | Int32[3] | 洞穴背景X坐标 |  
+| 4 | CaveBackStyle(洞穴背景样式) | Byte[4] | 洞穴背景样式 |  
+| 13 | TreeTops(树冠样式) | Byte[13] | 13种树冠样式标记 |  
+| 4 | MaxRaining(降雨强度) | Single | 当前降雨强度(0.0-1.0) |  
+| 1 | WorldFlags2(世界标记2) | Byte | BitFlags(位标记):<br>0=ShadowOrbSmashed(暗影珠被破坏)<br>1=DownedEyeOfCthulhu(克苏鲁之眼)<br>2=DownedEaterOfWorlds(世界吞噬者)<br>3=DownedSkeletron(骷髅王)<br>4=HardMode(困难模式)<br>5=DownedClown(小丑)<br>6=ServerSideCharacter(服务器角色)<br>7=DownedPlantera(世纪之花) |  
+| 1 | WorldFlags3(世界标记3) | Byte | BitFlags(位标记):<br>0=DownedMechBoss1(毁灭者)<br>1=DownedMechBoss2(双子魔眼)<br>2=DownedMechBoss3(机械骷髅王)<br>3=DownedAnyMechBoss(任意机械Boss)<br>4=CloudBGActive(云层背景激活)<br>5=IsCrimson(猩红世界)<br>6=IsPumpkinMoon(南瓜月事件)<br>7=IsSnowMoon(霜月事件) |  
+| 1 | WorldFlags4(世界标记4) | Byte | BitFlags(位标记):<br>1=FastForwardTime(时间加速)<br>2=IsSlimeRain(史莱姆雨)<br>3=DownedKingSlime(史莱姆王)<br>4=DownedQueenBee(蜂后)<br>5=DownedDukeFishron(猪龙鱼公爵)<br>6=DownedMartians(火星人入侵)<br>7=DownedAncientCultist(远古教徒) |  
+| 1 | WorldFlags5(世界标记5) | Byte | BitFlags(位标记):<br>0=DownedMoonLord(月亮领主)<br>1=DownedPumpking(南瓜王)<br>2=DownedMourningWood(哀木)<br>3=DownedIceQueen(冰雪女王)<br>4=DownedSantank(圣诞坦克)<br>5=DownedEverscream(常绿尖叫怪)<br>6=DownedGolem(石巨人)<br>7=IsBirthdayParty(生日派对) |  
+| 1 | WorldFlags6(世界标记6) | Byte | BitFlags(位标记):<br>0=DownedPirates(海盗入侵)<br>1=DownedFrostLegion(霜月军团)<br>2=DownedGoblins(哥布林入侵)<br>3=IsSandstorm(沙尘暴)<br>4=IsDD2Event(撒旦军队事件)<br>5=DownedDD2T1(撒旦军队T1)<br>6=DownedDD2T2(撒旦军队T2)<br>7=DownedDD2T3(撒旦军队T3) |  
+| 1 | WorldFlags7(世界标记7) | Byte | BitFlags(位标记):<br>0=CombatBookUsed(战斗手册使用)<br>1=IsLanternNight(灯笼夜)<br>2=DownedSolarTower(日耀塔)<br>3=DownedVortexTower(星璇塔)<br>4=DownedNebulaTower(星云塔)<br>5=DownedStardustTower(星尘塔)<br>6=ForceHalloween(强制万圣节)<br>7=ForceChristmas(强制圣诞节) |  
+| 1 | WorldFlags8(世界标记8) | Byte | BitFlags(位标记):<br>0=BoughtCat(购买猫)<br>1=BoughtDog(购买狗)<br>2=BoughtBunny(购买兔)<br>3=FreeCake(免费蛋糕)<br>4=IsDrunkWorld(醉酒世界)<br>5=DownedEmpressOfLight(光之女皇)<br>6=DownedQueenSlime(史莱姆皇后)<br>7=IsGetGoodWorld(终极世界种子) |  
+| 1 | WorldFlags9(世界标记9) | Byte | BitFlags(位标记):<br>0=IsTenthAnniversary(十周年世界)<br>1=IsDontStarve(饥荒世界)<br>2=DownedDeerclops(鹿角怪)<br>3=IsNotTheBees(Not the Bees世界)<br>4=IsRemixWorld(混搭世界)<br>5=UnlockedBlueSlime(解锁蓝史莱姆)<br>6=CombatBookVolumeTwo(战斗手册第二卷)<br>7=PeddlersSatchel(小贩的背包) |  
+| 1 | WorldFlags10(世界标记10) | Byte | BitFlags(位标记):<br>0=UnlockedGreenSlime(解锁绿史莱姆)<br>1=UnlockedOldSlime(解锁老史莱姆)<br>2=UnlockedPurpleSlime(解锁紫史莱姆)<br>3=UnlockedRainbowSlime(解锁彩虹史莱姆)<br>4=UnlockedRedSlime(解锁红史莱姆)<br>5=UnlockedYellowSlime(解锁黄史莱姆)<br>6=UnlockedCopperSlime(解锁铜史莱姆)<br>7=FastForwardToDusk(加速至黄昏) |  
+| 1 | WorldFlags11(世界标记11) | Byte | BitFlags(位标记):<br>0=IsNoTrapsWorld(无陷阱世界)<br>1=IsZenithWorld(天顶世界)<br>2=UnlockedTruffle(解锁松露人) |  
+| 1 | SundialCooldown(日晷冷却) | Byte | 日晷剩余冷却时间 |  
+| 1 | MoondialCooldown(月晷冷却) | Byte | 月晷剩余冷却时间 |  
+| 2 | CopperTier(铜矿层级) | Int16 | 铜矿替代矿类型 |  
+| 2 | IronTier(铁矿层级) | Int16 | 铁矿替代矿类型 |  
+| 2 | SilverTier(银矿层级) | Int16 | 银矿替代矿类型 |  
+| 2 | GoldTier(金矿层级) | Int16 | 金矿替代矿类型 |  
+| 2 | CobaltTier(钴矿层级) | Int16 | 钴矿替代矿类型 |  
+| 2 | MythrilTier(秘银层级) | Int16 | 秘银替代矿类型 |  
+| 2 | AdamantiteTier(精金层级) | Int16 | 精金替代矿类型 |  
+| 1 | InvasionType(入侵类型) | SByte | 当前入侵事件类型 |  
+| 8 | LobbyID(大厅ID) | UInt64 | 多人游戏大厅ID |  
+| 4 | SandstormSeverity(沙尘暴强度) | Single | 当前沙尘暴强度 |
 #### Definition
 ```csharp
 [ClientGetOnly]

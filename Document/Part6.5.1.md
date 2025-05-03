@@ -363,20 +363,20 @@ float sandstormSeverity = binaryReader.ReadSingle(); // 沙尘暴强度
 #### 结构  
 | 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
-| 4 | X | Int32 | PlayerSpawnX(玩家出生点X坐标) |
-| 4 | Y | Int32 | PlayerSpawnY(玩家出生点Y坐标) |
+| 4 | X(玩家出生点TileX坐标) | Int32 | - |
+| 4 | Y(玩家出生点TileY坐标) | Int32 | - |
 
 #### GetData
 ```csharp
 using BinaryReader binaryReader = new(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length));
-int x = this.reader.ReadInt32(); //玩家出生点X坐标
-int y = this.reader.ReadInt32(); //玩家出生点Y坐标
+int x = this.reader.ReadInt32(); //玩家出生点TileX坐标
+int y = this.reader.ReadInt32(); //玩家出生点TileY坐标
 ```
 
 #### SendData
 | PacketTypes | Text | number | number2 | number3 | number4 | number5 |
 | ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
-|  TileGetSection     | 无 | PlayerSpawnX(玩家出生点X坐标)     |  PlayerSpawnY(玩家出生点X坐标)   |   无   |    无   |    无      |
+|  TileGetSection     | 无 | PlayerSpawnX(玩家出生点TileX坐标)     |  PlayerSpawnY(玩家出生点TileY坐标)   |   无   |    无   |    无      |
 
 
 ### Status \[9\]
@@ -424,8 +424,8 @@ bool hasTextShadow = statusFlags[1];                  // 位1: 是否显示文�
 | 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |  
 |------|------|------|------|  
 | 1 | IsCompressed(是否压缩) | Boolean | 数据是否使用压缩格式 |  
-| 4 | XStart(起始X坐标) | Int32 | 区块左上角世界X坐标 |  
-| 4 | YStart(起始Y坐标) | Int32 | 区块左上角世界Y坐标 |  
+| 4 | XStart(起始TileX坐标) | Int32 | 区块左上角世界TileX坐标 |  
+| 4 | YStart(起始TileY坐标) | Int32 | 区块左上角世界TileY坐标 |  
 | 2 | Width(宽度) | Int16 | 区块横向格数 |  
 | 2 | Height(高度) | Int16 | 区块纵向格数 |  
 | ? | Tiles(图格数据) | Byte[] | (压缩)图格数组，每个图格包含:<br> 类型(Type)<br> 样式(Style)<br> 液体(Liquid)<br> 电线(Wire) |  
@@ -445,7 +445,7 @@ NetMessage.DecompressTileBlock(binaryReader.BaseStream); //读取、解压区块
 #### SendData
 | PacketTypes | Text | number | number2 | number3 | number4 | number5 |
 | ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
-|  TileSendSection| 无 | xStart(区块起始X坐标)     |  yStart(区块起始Y坐标)   |   width(区块宽度)   |    height(无区块高度)   |    无      |
+|  TileSendSection| 无 | xStart(区块起始TileX坐标)     |  yStart(区块起始TileY坐标)   |   width(区块宽度)   |    height(无区块高度)   |    无      |
 
 > [!NOTE]
 > - 泰拉瑞亚的图格坐标起点是地图左上角(0,0)
@@ -1132,19 +1132,26 @@ NetMessage.SendData(51);
 ```
 
 ### ChestUnlock \[52\]
+#### Client -> Server
+客户端同步解锁或上锁箱子、解锁丛林门
+#### 结构
 | 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
-#### Definition
+|1	|Type(操作类型) | Byte|	Value(值): <br> 1 = ChestUnlock(解锁箱子)<br> 2 = DoorUnlock(解锁神庙大门)<br> 3 = ChestLock(给箱子上锁) |
+|2	|X(目标TileX坐标)	|Int16|	-|
+|2	|Y(目标TileY坐标)	|Int16|	-|
+
+#### GetData
 ```csharp
-public struct ChestUnlock
-{
-    
-}    
+using BinaryReader binaryReader = new(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length));
+byte lockActionType = binaryReader.ReadByte();  //操作类型：1-解锁箱子，2-解锁门，3-上锁箱子
+short tileX = binaryReader.ReadInt16();  //目标的TileX坐标
+short tileY = binaryReader.ReadInt16();  //目标的TileY坐标
 ```
 #### SendData
-```csharp
-NetMessage.SendData(52);
-```
+| PacketTypes | Text | number | number2 | number3 | number4 | number5 |
+| ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
+|   ChestUnlock  |  无   |    无     |   Type(操作类型)    |    X(目标TileX坐标)   |    Y(目标TileY坐标)      |  无     |
 
 ### NpcAddBuff \[53\]
 | 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |

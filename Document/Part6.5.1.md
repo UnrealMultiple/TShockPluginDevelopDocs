@@ -195,14 +195,9 @@ short type = (int) this.reader.ReadInt16(); //物品ID
 | ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
 |    ContinueConnecting2     |  无     |  无   |    无    |   无   |    无   |    无      |
 
-
-### WorldInfo \[7\]
-#### Server -> Client
-服务器向客户端同步世界信息
-### WorldInfo [7]  
+### WorldInfo \[7\]  
 #### Server -> Client (Sync)  
 服务器向客户端同步世界信息  
-
 #### 结构  
 | 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |  
 |------|------|------|------|  
@@ -358,23 +353,31 @@ float sandstormSeverity = binaryReader.ReadSingle(); // 沙尘暴强度
 |  WorldInfo     |  无     |  无   |    无    |   无   |    无   |    无      |
 
 ### TileGetSection \[8\]
+#### Client -> Server
+玩家加入服务器，客户端向服务器请求区块，服务器会发送玩家生成位置的区块，图鉴信息，旅行模式能力设置，晶塔信息等数据
+> [!NOTE]
+> - 无论X,Y的值，服务器一定会发送世界出生点的区块
+> - 当玩家在服务器中已设置出生点时，服务器还会发送玩家出生点的区块信息
+> - 当玩家在服务器中没有设置出生点时，X=-1且Y=-1，此时服务器只会发送世界出生点的区块
+
+#### 结构  
 | 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
-| 4 | X | Int32 | Player Spawn X |
-| 4 | Y | Int32 | Player Spawn Y |
-#### Definition
+| 4 | X | Int32 | PlayerSpawnX(玩家出生点X坐标) |
+| 4 | Y | Int32 | PlayerSpawnY(玩家出生点Y坐标) |
+
+#### GetData
 ```csharp
-[ServerGetOnly]
-public struct TileGetSection
-{
-    public int TileX;
-    public int TileY;
-}
+using BinaryReader binaryReader = new(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length));
+int x = this.reader.ReadInt32(); //玩家出生点X坐标
+int y = this.reader.ReadInt32(); //玩家出生点Y坐标
 ```
+
 #### SendData
-```csharp
-NetMessage.SendData(8, -1, -1, null, tileX, tileY)
-```
+| PacketTypes | Text | number | number2 | number3 | number4 | number5 |
+| ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
+|  TileGetSection     |  PlayerSpawnX(玩家出生点X坐标)     |  PlayerSpawnY(玩家出生点X坐标)   |    无    |   无   |    无   |    无      |
+
 
 ### Status \[9\]
 | 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |

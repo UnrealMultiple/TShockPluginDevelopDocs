@@ -78,15 +78,15 @@ bool serverWantsToRunCheckBytesInClientLoopThread = binaryReader.ReadBoolean(); 
 | 1 | HairDye(染发剂) | Byte | 头发染色类型ID |
 | 2 | AccessoryVisibility(饰品可见性) | UInt16 | 按位控制饰品显示状态 |
 | 1 | HideMisc(杂项隐藏) | Byte | 控制宠物/坐骑等额外显示 |
-| 3 | HairColor(发色) | RGBColor | 红(R)绿(G)蓝(B)值 |
-| 3 | SkinColor(肤色) | RGBColor | - |
-| 3 | EyeColor(眼睛颜色) | RGBColor | - |
-| 3 | ShirtColor(上衣颜色) | RGBColor | - |
-| 3 | UnderShirtColor(内衣颜色) | RGBColor | - |
-| 3 | PantsColor(裤子颜色) | RGBColor | - |
-| 3 | ShoeColor(鞋子颜色) | RGBColor | - |
+| 3 | HairColor(发色) | Color | 红(R)绿(G)蓝(B)值 |
+| 3 | SkinColor(肤色) | Color | - |
+| 3 | EyeColor(眼睛颜色) | Color | - |
+| 3 | ShirtColor(上衣颜色) | Color | - |
+| 3 | UnderShirtColor(内衣颜色) | Color | - |
+| 3 | PantsColor(裤子颜色) | Color | - |
+| 3 | ShoeColor(鞋子颜色) | Color | - |
 | 1 | DifficultyFlags(难度标记) | Byte | BitFlags(位标记):<br/> 0=Mediumcore(中核)<br/> 1=Hardcore(硬核)<br/> 2=ExtraAccessory(额外饰品栏)<br/> 3=Creative(旅行模式) |
-| 1 | TorchFlags(火把标记) | Byte | BitFlags(位标记):<br/> 0=UsingBiomeTorches(启用火把神的恩宠)<br>1=HappyFunTorchTime(火把神事件)<br>2=UnlockedBiomeTorches(解锁火把神的恩宠)<br>3=UnlockedSuperCart(解锁矿车升级包)<br>4=EnabledSuperCart(使用矿车升级包) |
+| 1 | TorchFlags(火把标记) | Byte | BitFlags(位标记):<br/> 0=UsingBiomeTorches(启用火把神的恩宠)<br>1=HappyFunTorchTime(火把神事件)<br>2=UnlockedBiomeTorches(解锁火把神的恩宠)<br>3=UnlockedSuperCart(解锁矿车升级包)<br>4=EnabledSuperCart(启用矿车升级包) |
 | 1 | ConsumableFlags(消耗品标记) | Byte | BitFlags(位标记):<br/>0=UsedAegisCrystal(活力水晶)<br>1=UsedAegisFruit(神盾果)<br>2=UsedArcaneCrystal(奥术水晶)<br>3=UsedGalaxyPearl(星系珍珠)<br>4=UsedGummyWorm(黏性蠕虫)<br>5=UsedAmbrosia(仙馔密酒)<br>6=AteArtisanBread(工匠面包) |
 
 > [!NOTE]
@@ -98,50 +98,50 @@ bool serverWantsToRunCheckBytesInClientLoopThread = binaryReader.ReadBoolean(); 
 using BinaryReader binaryReader = new(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length));
 
 // 基础玩家信息
-byte playerID = binaryReader.ReadByte(); // PlayerID(玩家索引)
-byte skinVariant = binaryReader.ReadByte(); // SkinVariant(人物风格)
-byte hair = binaryReader.ReadByte(); // Hair(发型)
-string name = binaryReader.ReadString().Trim(); // Name(角色名称)
-byte hairDye = binaryReader.ReadByte(); // HairDye(染发剂)
+byte playerID = binaryReader.ReadByte(); //玩家索引
+byte skinVariant = binaryReader.ReadByte(); //人物风格
+byte hair = binaryReader.ReadByte(); //发型
+string name = binaryReader.ReadString().Trim(); //角色名称
+byte hairDye = binaryReader.ReadByte(); //染发剂
 
 // 可见性标记
-ushort accessoryVisibility = binaryReader.ReadUInt16(); // AccessoryVisibility(饰品可见性)
-byte hideMisc = binaryReader.ReadByte(); // HideMisc(杂项隐藏)
+ushort accessoryVisibility = binaryReader.ReadUInt16(); //饰品可见性
+byte hideMisc = binaryReader.ReadByte(); //杂项隐藏
 
 // 颜色信息
-Color hairColor = binaryReader.ReadRGB(); // HairColor(发色)
-Color skinColor = binaryReader.ReadRGB(); // SkinColor(肤色)
-Color eyeColor = binaryReader.ReadRGB(); // EyeColor(眼睛颜色)
-Color shirtColor = binaryReader.ReadRGB(); // ShirtColor(上衣颜色)
-Color underShirtColor = binaryReader.ReadRGB(); // UnderShirtColor(内衣颜色)
-Color pantsColor = binaryReader.ReadRGB(); // PantsColor(裤子颜色)
-Color shoeColor = binaryReader.ReadRGB(); // ShoeColor(鞋子颜色)
+Color hairColor = binaryReader.ReadRGB(); //发色
+Color skinColor = binaryReader.ReadRGB(); //肤色
+Color eyeColor = binaryReader.ReadRGB(); //眼睛颜色
+Color shirtColor = binaryReader.ReadRGB(); //上衣颜色
+Color underShirtColor = binaryReader.ReadRGB(); //内衣颜色
+Color pantsColor = binaryReader.ReadRGB(); //裤子颜色
+Color shoeColor = binaryReader.ReadRGB(); //鞋子颜色
 
 // 难度和功能标记
-BitsByte difficultyFlags = binaryReader.ReadByte(); // DifficultyFlags(难度标记)
+BitsByte difficultyFlags = binaryReader.ReadByte(); //难度标记
 byte difficulty = 0; // 0=软核
-if (difficultyFlags[0]) difficulty = 1; // 中核
-if (difficultyFlags[1]) difficulty = 2; // 硬核
-if (difficultyFlags[3]) difficulty = 3; // 旅行
-bool extraAccessory = difficultyFlags[2]; // ExtraAccessory(额外饰品栏)
+if (difficultyFlags[0]) difficulty = 1; //中核
+if (difficultyFlags[1]) difficulty = 2; //硬核
+if (difficultyFlags[3]) difficulty = 3; //旅行
+bool extraAccessory = difficultyFlags[2]; //额外饰品栏
 
 // 火把系统标记
-BitsByte torchFlags = binaryReader.ReadByte(); // TorchFlags(火把标记)
-bool usingBiomeTorches = torchFlags[0]; // 启用火把神的恩宠
-bool happyFunTorchTime = torchFlags[1]; // 火把神事件
-bool unlockedBiomeTorches = torchFlags[2]; // 已解锁火把神的恩宠
-bool unlockedSuperCart = torchFlags[3]; // 解锁矿车升级包
-bool enabledSuperCart = torchFlags[4]; // 使用矿车升级包
+BitsByte torchFlags = binaryReader.ReadByte(); //火把标记
+bool usingBiomeTorches = torchFlags[0]; //启用火把神的恩宠
+bool happyFunTorchTime = torchFlags[1]; //火把神事件
+bool unlockedBiomeTorches = torchFlags[2]; //已解锁火把神的恩宠
+bool unlockedSuperCart = torchFlags[3]; //解锁矿车升级包
+bool enabledSuperCart = torchFlags[4]; //启用矿车升级包
 
 // 消耗品标记
-BitsByte consumableFlags = binaryReader.ReadByte(); // ConsumableFlags(消耗品标记)
-bool usedAegisCrystal = consumableFlags[0]; // 使用活力水晶
-bool usedAegisFruit = consumableFlags[1]; // 使用神盾果
-bool usedArcaneCrystal = consumableFlags[2]; // 使用奥术水晶
-bool usedGalaxyPearl = consumableFlags[3]; // 使用星系珍珠
-bool usedGummyWorm = consumableFlags[4]; // 使用黏性蠕虫
-bool usedAmbrosia = consumableFlags[5]; // 使用仙馔密酒
-bool ateArtisanBread = consumableFlags[6]; // 食用工匠面包
+BitsByte consumableFlags = binaryReader.ReadByte(); //消耗品标记
+bool usedAegisCrystal = consumableFlags[0]; //使用活力水晶
+bool usedAegisFruit = consumableFlags[1]; //使用神盾果
+bool usedArcaneCrystal = consumableFlags[2]; //使用奥术水晶
+bool usedGalaxyPearl = consumableFlags[3]; //使用星系珍珠
+bool usedGummyWorm = consumableFlags[4]; //使用黏性蠕虫
+bool usedAmbrosia = consumableFlags[5]; //使用仙馔密酒
+bool ateArtisanBread = consumableFlags[6]; //食用工匠面包
 ```
 
 #### SendData
@@ -150,47 +150,51 @@ bool ateArtisanBread = consumableFlags[6]; // 食用工匠面包
 |    PlayerInfo     |  无   |    Index(玩家索引)     |    无   |    无   |    无      |  无     |
 
 
-
 ### PlayerSlot \[5\]
+#### Server <-> Client (Sync)
+服务器和客户端同步玩家的库存(包括背包、猪猪储钱罐、保险箱等)的每格物品的信息
+#### 结构
 | 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
-| 1 | Player ID | Byte | \- |
-| 2 | Slot ID | Int16 | \- |
-| 2 | Stack | Int16 | \- |
-| 1 | Prefix | Byte | \- |
-| 2 | Type | Int16 | \- |
-#### Definition
+| 1 | PlayerID(玩家索引) | Byte | \- |
+| 2 | SlotID(格位ID) | Int16 | \- |
+| 2 | Stack(数量) | Int16 | \- |
+| 1 | Prefix(前缀ID) | Byte | \- |
+| 2 | Type(物品ID) | Int16 | \- |
+
+#### GetData
 ```csharp
-[ServerForward]
-public struct PlayerSlot
-{
-    public byte PlayerID;
-    public short SlotID;
-    public short Stack;
-    public byte Prefix;
-    public short Type;
-}
-```
-#### SendData
-```csharp
-NetMessage.SendData(5, -1, -1, null, playerID, slotID, prefix);
+using BinaryReader binaryReader = new(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length));
+short index = this.reader.ReadInt16(); //玩家索引
+short slot = (int) this.reader.ReadInt16(); //格位ID
+byte prefix = (int) this.reader.ReadByte(); //物品前缀
+short type = (int) this.reader.ReadInt16(); //物品ID
 ```
 
+#### SendData
+| PacketTypes | Text | number | number2 | number3 | number4 | number5 |
+| ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
+|    PlayerSlot     |  无     |  PlayerID(玩家索引)   |    SlotID(格位ID)     |    Prefix(前缀ID)   |    无   |    无      |
+
+
 ### ContinueConnecting 2 \[6\]
+#### Client -> Server
+客户端向服务器请求世界信息，此数据包不携带如何数据，仅表示一个信号
+#### 结构
 | 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | - | - | - | - |
-#### Definition
+
+#### GetData
 ```csharp
-[ServerGetOnly]
-public struct ContinueConnecting2
-{
-}
+没有可以读取的数据
 ```
+
 #### SendData
-```csharp
-NetMessage.SendData(6);
-```
+| PacketTypes | Text | number | number2 | number3 | number4 | number5 |
+| ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
+|    ContinueConnecting2     |  无     |  无   |    无    |   无   |    无   |    无      |
+
 
 ### WorldInfo \[7\]
 | 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
@@ -2553,9 +2557,9 @@ public struct SyncItemCannotBeTakenByEnemies
 NetMessage.SendData(148);
 ```
 
-### RGBColor
+### Color
 ```csharp
-public struct RGBColor
+public struct Color
 {
     public byte R;
     public byte G;

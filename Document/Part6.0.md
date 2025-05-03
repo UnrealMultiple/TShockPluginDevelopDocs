@@ -42,7 +42,7 @@
 | 偏移量 (Offset) | 大小 (Size) | 描述 (Description)          | 类型 (Type)       | 说明                               |
 |:---------------:|:-----------:|----------------------------|-------------------|-----------------------------------|
 |               0 |           2 | 数据包长度（字节）          | ushort            | -                                 |
-|               2 |           1 | 数据包类型/ID               | byte              | 使用 `TSAPI.Packetypes.PacketName` 枚举值 |
+|               2 |           1 | 数据包类型/ID               | byte              | 使用 `TSAPI.PackeTypes.PacketName` 枚举值 |
 |               3 |           ? | 数据内容                    | ?                 | 具体结构参考后续字段定义           |
 
 1. **偏移量 (Offset)**  
@@ -75,7 +75,7 @@
 
 5. **数据包类型 (Packet Type)**  
    - 包号，代表数据包的功能（如 `8` = 请求区块）。  
-   - 建议用`TSAPI.Packetypes.PacketName`提高代码可读性。
+   - 建议用`TSAPI.PackeTypes.PacketName`提高代码可读性。
 
 6. **数据内容 (Data)**  
    - 实际的有效载荷(Payload)，也就是数据包携带的数据，结构因包类型而异。  

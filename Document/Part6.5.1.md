@@ -1,4 +1,4 @@
-# Part 6.5.1 数据包参考表格\(1.4.4.9\) \(by @xuyuwtu & ACaiCat\)
+# Part 6.5.1 数据包参考表格\(1.4.4.9\) \(by [@xuyuwtu](https://github.com/xuyuwtu) & [@ACaiCat](https://github.com/ACaiCat)\)
 
 ## 数据包结构
 

@@ -267,78 +267,95 @@ short type = (int) this.reader.ReadInt16(); //物品ID
 | 1 | InvasionType(入侵类型) | SByte | 当前入侵事件类型 |  
 | 8 | LobbyID(大厅ID) | UInt64 | 多人游戏大厅ID |  
 | 4 | SandstormSeverity(沙尘暴强度) | Single | 当前沙尘暴强度 |
-#### Definition
+
+#### GetData
 ```csharp
-[ClientGetOnly]
-public unsafe struct WorldInfo
-{
-    public int Time;
-    public BitsByte Flag1;
-    public byte MoonPhase;
-    public short MaxTileX;
-    public short MaxTileY;
-    public short SpawnTileX;
-    public short SpawnTileY;
-    public short WorldSurface;
-    public short RockLayer;
-    public int WolrID;
-    public string WorldName;
-    public byte GameMode;
-    public fixed byte UniqueID[16];
-    public ulong WorldGeneratorVersion;
-    public byte MoonType;
-    public byte TreeBG1;
-    public byte TreeBG2;
-    public byte TreeBG3;
-    public byte TreeBG4;
-    public byte CorruptBG;
-    public byte JungleBG;
-    public byte SnowBG;
-    public byte HallowBG;
-    public byte CirmsonBG;
-    public byte DesertBG;
-    public byte OceanBG;
-    public byte MushroomBG;
-    public byte UnderworldBG;
-    public byte IceBackStyle;
-    public byte JungleBackStyle;
-    public byte HellBackStyle;
-    public float WindSpeedTarget;
-    public byte NumClouds;
-    public fixed int TreeX[3];
-    public fixed byte TreeStyle[4];
-    public fixed int CaveBackX[3];
-    public fixed byte CaveBackStyle[4];
-    public fixed byte TreeTops[13];
-    public float MaxRaining;
-    public BitsByte Flag2;
-    public BitsByte Flag3;
-    public BitsByte Flag4;
-    public BitsByte Flag5;
-    public BitsByte Flag6;
-    public BitsByte Flag7;
-    public BitsByte Flag8;
-    public BitsByte Flag9;
-    public BitsByte Flag10;
-    public BitsByte Flag11;
-    public byte SundialCooldown;
-    public byte MoondialCooldown;
-    public short CopperTier;
-    public short IronTier;
-    public short SilverTier;
-    public short GoldTier;
-    public short CobaltTier;
-    public short MythrilTier;
-    public short AdamantiteTier;
-    public sbyte InvasionType;
-    public ulong LobbyID;
-    public float IntendedServerity;
+using BinaryReader binaryReader = new(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length));
+
+// 基础世界信息
+int time = binaryReader.ReadInt32(); // 游戏时间(tick)
+BitsByte worldFlags1 = binaryReader.ReadByte(); // 世界标记1
+bool isDayTime = worldFlags1[0]; // 是否白天
+bool isBloodMoon = worldFlags1[1]; // 是否血月
+bool isEclipse = worldFlags1[2]; // 是否日食
+byte moonPhase = binaryReader.ReadByte(); // 月相(0-7)
+
+// 世界尺寸
+short maxTilesX = binaryReader.ReadInt16(); // 世界最大宽度
+short maxTilesY = binaryReader.ReadInt16(); // 世界最大高度
+
+// 出生点坐标
+short spawnX = binaryReader.ReadInt16(); // 出生点X
+short spawnY = binaryReader.ReadInt16(); // 出生点Y
+
+// 世界层高度
+short worldSurface = binaryReader.ReadInt16(); // 地表高度
+short rockLayer = binaryReader.ReadInt16(); // 岩石层高度
+
+// 世界标识
+int worldID = binaryReader.ReadInt32(); // 世界ID
+string worldName = binaryReader.ReadString(); // 世界名称
+byte gameMode = binaryReader.ReadByte(); // 游戏模式(0-3)
+
+// 世界唯一标识
+Guid worldGuid = new Guid(binaryReader.ReadBytes(16)); // 世界唯一ID
+ulong worldVersion = binaryReader.ReadUInt64(); // 世界版本
+
+// 天体信息
+byte moonType = binaryReader.ReadByte(); // 月亮类型
+
+// 背景样式
+byte[] bgStyles = new byte[13];
+for(int i=0; i<13; i++){
+    bgStyles[i] = binaryReader.ReadByte(); // 13种背景样式
 }
+
+// 风速和云层
+float windSpeed = binaryReader.ReadSingle(); // 风速
+byte cloudCount = binaryReader.ReadByte(); // 云层数量
+
+// 特殊坐标点
+int[] treeX = new int[3];
+for(int i=0; i<3; i++){
+    treeX[i] = binaryReader.ReadInt32(); // 特殊树木坐标
+}
+
+// 树木样式
+byte[] treeStyle = new byte[4];
+for(int i=0; i<4; i++){
+    treeStyle[i] = binaryReader.ReadByte(); // 4种树木样式
+}
+
+// 降雨信息
+float rainIntensity = binaryReader.ReadSingle(); // 降雨强度
+bool isRaining = rainIntensity > 0f; // 是否正在下雨
+
+// 读取所有世界状态标记(共13个字节)
+BitsByte[] worldStateFlags = new BitsByte[13];
+for(int i=0; i<13; i++){
+    worldStateFlags[i] = binaryReader.ReadByte();
+}
+
+// 其他世界设置
+byte sundialCooldown = binaryReader.ReadByte(); // 日晷冷却
+byte moondialCooldown = binaryReader.ReadByte(); // 月晷冷却
+
+// 矿石层级
+short[] oreTiers = new short[7];
+for(int i=0; i<7; i++){
+    oreTiers[i] = binaryReader.ReadInt16(); // 7种矿石类型
+}
+
+// 多人游戏信息
+sbyte invasionType = binaryReader.ReadSByte(); // 入侵事件类型
+ulong lobbyID = binaryReader.ReadUInt64(); // 大厅ID
+float sandstormSeverity = binaryReader.ReadSingle(); // 沙尘暴强度
 ```
+
 #### SendData
-```csharp
-NetMessage.SendData(7);
-```
+| PacketTypes | Text | number | number2 | number3 | number4 | number5 |
+| ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
+|  WorldInfo     |  无     |  无   |    无    |   无   |    无   |    无      |
 
 ### TileGetSection \[8\]
 | 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |

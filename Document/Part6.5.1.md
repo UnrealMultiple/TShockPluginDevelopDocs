@@ -1,4 +1,4 @@
-# Part 6.5.1 数据包参考表格\(1.4.4.9\) \(by @xuyuwtu\)
+# Part 6.5.1 数据包参考表格\(1.4.4.9\) \(by @xuyuwtu & ACaiCat\)
 
 ## 数据包结构
 
@@ -380,78 +380,78 @@ int y = this.reader.ReadInt32(); //玩家出生点Y坐标
 
 
 ### Status \[9\]
-| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
-| ---- | ----------- | ---- | ----- |
-| 4 | Status Max | Int32 | \- |
-| ? | Status Text | NetworkText | \- |
-| 1 | Status Text Flags | Byte | BitFlags:<br> 1 = HideStatusTextPercent<br> 2 = StatusTextHasShadows |
-#### Definition
+#### Server -> Client
+主要用于服务器向客户端同步长时间任务的执行进度和状态提示(例如进服时接收区块)，也可以用来做计分板
+#### 结构  
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |  
+|------|------|------|------|  
+| 4 | StatusMax(总进度) | Int32 | 任务总进度值（如区块同步总数） |  
+| ? | StatusText(状态文本) | NetworkText | 显示的状态消息（如"Receiving tile data"） |  
+| 1 | StatusFlags(状态标记) | Byte | BitFlags(位标记):<br> 0=HidePercent(隐藏百分比)<br> 1=TextShadow(文本阴影) |  
+
+#### GetData
 ```csharp
-[ClientGetOnly]
-public struct Status
-{
-    public int StatusMax;
-    public Localization.NetworkText Text;
-    public BitsByte Flag;
-}
-```
-#### SendData
-```csharp
-NetMessage.SendData(9, -1, -1, null, statusMax, flag)
+using BinaryReader binaryReader = new(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length));
+
+// 读取进度数据
+int statusMax = binaryReader.ReadInt32();             // StatusMax(总进度值)
+string statusText = NetworkText.Deserialize(binaryReader).ToString(); // StatusText(状态文本)
+
+// 读取状态标记位
+BitsByte statusFlags = binaryReader.ReadByte();       // StatusFlags(状态标记)
+bool hidePercent = statusFlags[0];                    // 位0: 是否隐藏百分比
+bool hasTextShadow = statusFlags[1];                  // 位1: 是否显示文本阴影
 ```
 
+#### SendData
+| PacketTypes | Text | number | number2 | number3 | number4 | number5 |
+| ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
+|  Status     | StatusText(状态文本) | StatusMax(总进度)     |  StatusFlags(状态标记)   |   无   |    无   |    无      |
+
+
+| StatusFlags(状态标记)  | 位标记状态 (`[HidePercent, TextShadow]`) | 说明 |
+|-----------------------|-----------------------------------------|------|
+| `0`    | `[false, false]` | 显示百分比 + 无阴影 |
+| `1`    | `[true, false]`  | 隐藏百分比 + 无阴影 |
+| `2`    | `[false, true]`  | 显示百分比 + 有阴影 |
+| `3`    | `[true, true]`   | 隐藏百分比 + 有阴影 |
+
+
 ### TileSendSection \[10\]
-| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
-| ---- | ----------- | ---- | ----- |
-| 1 | Compressed | Boolean | \- |
-| 4 | X Start | Int32 | \- |
-| 4 | Y Start | Int32 | \- |
-| 2 | Width | Int16 | \- |
-| 2 | Height | Int16 | \- |
-| ? | Tiles | \- |  |
-| 2 | Chest Count | Int16 | \- |
-| ? | Chests | \- |  |
-| 2 | Sign Count | Int16 | \- |
-| ? | Signs | \- |  |
-| 2 | TileEntity Count | Int16 | \- |
-| ? | TileEntities | \- | \- |
-#### Definition
+#### Server -> Client
+服务器向客户端同步区块数据
+#### 结构  
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |  
+|------|------|------|------|  
+| 1 | IsCompressed(是否压缩) | Boolean | 数据是否使用压缩格式 |  
+| 4 | XStart(起始X坐标) | Int32 | 区块左上角世界X坐标 |  
+| 4 | YStart(起始Y坐标) | Int32 | 区块左上角世界Y坐标 |  
+| 2 | Width(宽度) | Int16 | 区块横向格数 |  
+| 2 | Height(高度) | Int16 | 区块纵向格数 |  
+| ? | Tiles(图格数据) | Byte[] | (压缩)图格数组，每个图格包含:<br> 类型(Type)<br> 样式(Style)<br> 液体(Liquid)<br> 电线(Wire) |  
+| 2 | ChestCount(箱子数量) | Int16 | 区块内包含的箱子数 |  
+| ? | Chests(箱子数据) | Byte[] | 每个箱子包含:<br> X/Y坐标<br> 物品列表 |  
+| 2 | SignCount(标牌数量) | Int16 | 区块内包含的标牌数 |  
+| ? | Signs(标牌数据) | Byte[] | 每个标牌包含:<br> X/Y坐标<br> 文本内容 |  
+| 2 | TileEntityCount(实体数量) | Int16 | 区块内特殊实体数 |  
+| ? | TileEntities(实体数据) | Byte[] | 包含:<br> 逻辑传感器<br> 物品框架<br> 训练假人等 |  
+
+#### GetData
+不写详细的解包逻辑，想看请反编译`NetMessage.DecompressTileBlock`
 ```csharp
-[ClientGetOnly]
-public struct TileSendSection
-{
-    public bool Compressed;
-    public int XStart;
-    public int YStart;
-    public short Width;
-    public short Height;
-    public byte[] TilesData;
-    public short ChestCount;
-    public ChestData[] Chests;
-    public short SignCount;
-    public SignData[] Sings;
-    public short TileEntityCount;
-    public byte[] TileEntitys;
-    public struct ChestData
-    {
-        public short ChestID;
-        public short X;
-        public short Y;
-        public string Name;
-    }
-    public struct SignData
-    {
-        public short SignID;
-        public short X;
-        public short Y;
-        public string Text;
-    }
-}
+using BinaryReader binaryReader = new(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length));
+NetMessage.DecompressTileBlock(binaryReader.BaseStream); //读取、解压区块数据并且同步到游戏中
 ```
 #### SendData
-```csharp
-NetMessage.SendData(10, -1, -1, null, xStart, yStart, width, height)
-```
+| PacketTypes | Text | number | number2 | number3 | number4 | number5 |
+| ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
+|  TileSendSection| 无 | xStart(区块起始X坐标)     |  yStart(区块起始Y坐标)   |   width(区块宽度)   |    height(无区块高度)   |    无      |
+
+> [!NOTE]
+> - 泰拉瑞亚的图格坐标起点是地图左上角(0,0)
+> - 区块由起始位置向右下角延申
+
+
 
 ### SectionTileFrame \[11\]
 | 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |

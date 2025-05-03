@@ -1,136 +1,158 @@
 # Part 6.5.1 数据包参考表格\(1.4.4.9\) \(by @xuyuwtu\)
 
+## 数据包结构
+
+| 偏移量(Offset) | 大小(Size) | 描述(Description)          | 类型(Type)       | 说明(Note)                               |
+|:---------------:|:-----------:|----------------------------|-------------------|-----------------------------------|
+|               0 |           2 | PacketLength(数据包长度)（字节）          | ushort            | -                             |
+|               2 |           1 | PacketType(数据包类型)             | byte              | 使用`TSAPI.PacketTypes.PacketName` 枚举值 |
+|               3 |           ? | Data(数据内容)                   | ?                 | 具体结构参考后续字段定义           |
+
+
 ### ConnectRequest \[1\]
-| Size | Description | Type | Notes |
+#### Client -> Server
+客户端向服务器发起连接请求
+#### 结构
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
-| ? | Version | String | "Terraria" + Main.curRelease |
-#### Definition
+| ? | Version(客户端版本号) | String | "Terraria" + `Main.curRelease` |
+#### GetData
 ```csharp
-[ServerGetOnly]
-public struct ConnectRequest
-{
-    public string Version;
-}
+using BinaryReader binaryReader = new(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length));
+int version = binaryReader.ReadString() //客户端版本
 ```
 #### SendData
-```csharp
-NetMessage.SendData(1);
-```
+| PacketTypes | Text | number | number2 | number3 | number4 | number5 |
+| ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
+|    ConnectRequest     |  无   |    无     |    无   |    无   |    无      |  无     |
 
 ### Disconnect \[2\]
-| Size | Description | Type | Notes |
+#### Server -> Client
+服务器踢出客户端
+#### 结构
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
-| ? | Reason | NetworkText | \- |
-#### Definition
+| ? | Reason(踢出理由) | NetworkText | \- |
+#### GetData
 ```csharp
-[ClientGetOnly]
-public struct Disconnect
-{
-    public Localization.NetworkText Text;
-}
+using BinaryReader binaryReader = new(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length));
+string kickReasion = NetworkText.Deserialize(binaryReader).ToString(); //踢出理由
 ```
 #### SendData
-```csharp
-NetMessage.SendData(2, -1, -1, text);
-```
+| PacketTypes | Text | number | number2 | number3 | number4 | number5 |
+| ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
+|    Disconnect     |  Reason(踢出理由)   |    无     |    无   |    无   |    无      |  无     |
 
 ### ContinueConnecting \[3\]
-| Size | Description | Type | Notes |
+#### Server -> Client
+服务器请求客户端将指定玩家角色的完整数据(包括物品栏、装备、银行等所有物品状态)同步到服务器
+#### 结构
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
-| 1 | Player ID | Byte | \- |
-| 1 | ServerWantsToRunCheckBytesInClientLoopThread | Boolean | NetPlay.Connection.ServerSpecialFlags[2] |
-#### Definition
+| 1 | PlayerID(玩家索引) | Byte | \- |
+| 1 | ServerWantsToRunCheckBytesInClientLoopThread(服务端是否要在客户端循环线程中运行CheckBytes) | Boolean | NetPlay.Connection.ServerSpecialFlags[2]、RemoteServer.ServerWantsToRunCheckBytesInClientLoopThread |
+
+#### GetData
 ```csharp
-[ClientGetOnly]
-public struct ContinueConnecting
-{
-    public byte PlayerID;
-    public bool ServerWantsToRunCheckBytesInClientLoopThread = false;
-}
+using BinaryReader binaryReader = new(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length));
+byte index = binaryReader.ReadByte(); //玩家索引
+bool serverWantsToRunCheckBytesInClientLoopThread = binaryReader.ReadBoolean(); //服务端是否要在客户端循环线程中运行CheckBytes()
 ```
+
 #### SendData
-```csharp
-NetMessage.SendData(3, remoteClient);
-```
+| PacketTypes | Text | number | number2 | number3 | number4 | number5 |
+| ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
+|    ContinueConnecting     |  无   |    无     |    无   |    无   |    无      |  无     |
+
 
 ### PlayerInfo \[4\]
-| Size | Description | Type | Notes |
-| ---- | ----------- | ---- | ----- |
-| 1 | Player ID | Byte | \- |
-| 1 | Skin Variant | Byte | \- |
-| 1 | Hair | Byte | \- |
-| ? | Name | String | \- |
-| 1 | Hair Dye | Byte | \- |
-| 2 | Accessory Visibility | UInt16 | \- |
-| 1 | Hide Misc | Byte | \- |
-| 3 | Hair Color | RGBColor | \- |
-| 3 | Skin Color | RGBColor | \- |
-| 3 | Eye Color | RGBColor | \- |
-| 3 | Shirt Color | RGBColor | \- |
-| 3 | Under Shirt Color | RGBColor | \- |
-| 3 | Pants Color | RGBColor | \- |
-| 3 | Shoe Color | RGBColor | \- |
-| 1 | Flag1 | Byte | BitFlags:<br/> 0 = Softcore<br/> 1 = Mediumcore<br/> 2 = Hardcore<br/> 4 = ExtraAccessory<br/> 8 = Creative |
-| 1 | Flag2 | Byte | BitFlags:<br/> 1 = UsingBiomeTorches<br/> 2 = HappyFunTorchTime<br/> 4 = UnlockedBiomeTorches<br/> 8 = UnlockedSuperCart<br/> 16 = EnabledSuperCart |
-| 1 | Flag3 | Byte | BitFlags:<br/> 1 = UsedAegisCrystal<br/> 2 = UsedAegisFruit<br/> 4 = UsedArcaneCrystal<br/> 8 = UsedGalaxyPearl<br/> 16 = UsedGummyWorm<br/> 32 = UsedAmbrosia<br/> 64 = AteArtisanBread |
-#### Definition
+#### Server <-> Client (Sync)
+服务器和客户端同步玩家角色信息
+#### 结构
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
+|------|------|------|------|
+| 1 | PlayerID(玩家索引) | Byte | 目标玩家索引 (0-255) |
+| 1 | SkinVariant(人物风格) | Byte | 角色基础外观变体 (0-PlayerVariantID.Max) |
+| 1 | Hair(发型) | Byte | 发型ID (0-164，超出自动重置) |
+| ? | Name(角色名称) | String | 自动Trim()的玩家名称 |
+| 1 | HairDye(染发剂) | Byte | 头发染色类型ID |
+| 2 | AccessoryVisibility(饰品可见性) | UInt16 | 按位控制饰品显示状态 |
+| 1 | HideMisc(杂项隐藏) | Byte | 控制宠物/坐骑等额外显示 |
+| 3 | HairColor(发色) | RGBColor | 红(R)绿(G)蓝(B)值 |
+| 3 | SkinColor(肤色) | RGBColor | - |
+| 3 | EyeColor(眼睛颜色) | RGBColor | - |
+| 3 | ShirtColor(上衣颜色) | RGBColor | - |
+| 3 | UnderShirtColor(内衣颜色) | RGBColor | - |
+| 3 | PantsColor(裤子颜色) | RGBColor | - |
+| 3 | ShoeColor(鞋子颜色) | RGBColor | - |
+| 1 | DifficultyFlags(难度标记) | Byte | BitFlags(位标记):<br/> 0=Mediumcore(中核)<br/> 1=Hardcore(硬核)<br/> 2=ExtraAccessory(额外饰品栏)<br/> 3=Creative(旅行模式) |
+| 1 | TorchFlags(火把标记) | Byte | BitFlags(位标记):<br/> 0=UsingBiomeTorches(启用火把神的恩宠)<br>1=HappyFunTorchTime(火把神事件)<br>2=UnlockedBiomeTorches(解锁火把神的恩宠)<br>3=UnlockedSuperCart(解锁矿车升级包)<br>4=EnabledSuperCart(使用矿车升级包) |
+| 1 | ConsumableFlags(消耗品标记) | Byte | BitFlags(位标记):<br/>0=UsedAegisCrystal(活力水晶)<br>1=UsedAegisFruit(神盾果)<br>2=UsedArcaneCrystal(奥术水晶)<br>3=UsedGalaxyPearl(星系珍珠)<br>4=UsedGummyWorm(黏性蠕虫)<br>5=UsedAmbrosia(仙馔密酒)<br>6=AteArtisanBread(工匠面包) |
+
+> [!NOTE]
+> 1. 所有标记字段均为1字节(8位)长度  
+> 2. 每个位标记对应一个布尔值状态  
+
+#### GetData
 ```csharp
-[ServerForward]
-public struct PlayerInfo
-{
-    public byte PlayerID;
-    public byte SkinVariant;
-    public byte Hair;
-    public string Name;
-    public byte HairDye;
-    public ushort AccessoryVisibility;
-    public RGBColor HairColor;
-    public RGBColor SkinColor; 
-    public RGBColor EyeColor;
-    public RGBColor ShirtColor;
-    public RGBColor UnderShirtColor;
-    public RGBColor RantsColor;
-    public RGBColor ShoeColor;
-    public BFlag1 Flag1;
-    public BFlag2 Flag2;
-    public BFlag3 Flag3;
-    public struct BFlag1
-    {
-        public BitsByte Data;
-        public bool IsSoftcore => Data[0];
-        public bool IsMediumcore => Data[1];
-        public bool ExtraAccessor => Data[2];
-        public bool IsCreative => Data[3];
-    }
-    public struct BFlag2
-    {
-        public BitsByte Data;
-        public bool UsingBiomeTorches => Data[0];
-        public bool HappyFunTorchTime => Data[1];
-        public bool UnlockedBiomeTorches => Data[2];
-        public bool UnlockedSuperCart => Data[3];
-        public bool EnabledSuperCart => Data[4];
-    }
-    public struct BFlag3
-    {
-        public BitsByte Data;
-        public bool UsedAegisCrystal => Data[0];
-        public bool UsedAegisFruit => Data[1];
-        public bool UsedArcaneCrystal => Data[2];
-        public bool UsedGalaxPearl => Data[3];
-        public bool UsedGummyWorm => Data[4];
-        public bool UsedAmbrosia => Data[5];
-        public bool AteArtisanBread => Data[6];
-    }
-}
-```
-#### SendData
-```csharp
-NetMessage.SendData(4, -1, -1, null, playerID);
+using BinaryReader binaryReader = new(new MemoryStream(args.Msg.readBuffer, args.Index, args.Length));
+
+// 基础玩家信息
+byte playerID = binaryReader.ReadByte(); // PlayerID(玩家索引)
+byte skinVariant = binaryReader.ReadByte(); // SkinVariant(人物风格)
+byte hair = binaryReader.ReadByte(); // Hair(发型)
+string name = binaryReader.ReadString().Trim(); // Name(角色名称)
+byte hairDye = binaryReader.ReadByte(); // HairDye(染发剂)
+
+// 可见性标记
+ushort accessoryVisibility = binaryReader.ReadUInt16(); // AccessoryVisibility(饰品可见性)
+byte hideMisc = binaryReader.ReadByte(); // HideMisc(杂项隐藏)
+
+// 颜色信息
+Color hairColor = binaryReader.ReadRGB(); // HairColor(发色)
+Color skinColor = binaryReader.ReadRGB(); // SkinColor(肤色)
+Color eyeColor = binaryReader.ReadRGB(); // EyeColor(眼睛颜色)
+Color shirtColor = binaryReader.ReadRGB(); // ShirtColor(上衣颜色)
+Color underShirtColor = binaryReader.ReadRGB(); // UnderShirtColor(内衣颜色)
+Color pantsColor = binaryReader.ReadRGB(); // PantsColor(裤子颜色)
+Color shoeColor = binaryReader.ReadRGB(); // ShoeColor(鞋子颜色)
+
+// 难度和功能标记
+BitsByte difficultyFlags = binaryReader.ReadByte(); // DifficultyFlags(难度标记)
+byte difficulty = 0; // 0=软核
+if (difficultyFlags[0]) difficulty = 1; // 中核
+if (difficultyFlags[1]) difficulty = 2; // 硬核
+if (difficultyFlags[3]) difficulty = 3; // 旅行
+bool extraAccessory = difficultyFlags[2]; // ExtraAccessory(额外饰品栏)
+
+// 火把系统标记
+BitsByte torchFlags = binaryReader.ReadByte(); // TorchFlags(火把标记)
+bool usingBiomeTorches = torchFlags[0]; // 启用火把神的恩宠
+bool happyFunTorchTime = torchFlags[1]; // 火把神事件
+bool unlockedBiomeTorches = torchFlags[2]; // 已解锁火把神的恩宠
+bool unlockedSuperCart = torchFlags[3]; // 解锁矿车升级包
+bool enabledSuperCart = torchFlags[4]; // 使用矿车升级包
+
+// 消耗品标记
+BitsByte consumableFlags = binaryReader.ReadByte(); // ConsumableFlags(消耗品标记)
+bool usedAegisCrystal = consumableFlags[0]; // 使用活力水晶
+bool usedAegisFruit = consumableFlags[1]; // 使用神盾果
+bool usedArcaneCrystal = consumableFlags[2]; // 使用奥术水晶
+bool usedGalaxyPearl = consumableFlags[3]; // 使用星系珍珠
+bool usedGummyWorm = consumableFlags[4]; // 使用黏性蠕虫
+bool usedAmbrosia = consumableFlags[5]; // 使用仙馔密酒
+bool ateArtisanBread = consumableFlags[6]; // 食用工匠面包
 ```
 
+#### SendData
+| PacketTypes | Text | number | number2 | number3 | number4 | number5 |
+| ----------- | ---- | ------------ | ------- | ------- | ------- | ------- |
+|    PlayerInfo     |  无   |    Index(玩家索引)     |    无   |    无   |    无      |  无     |
+
+
+
 ### PlayerSlot \[5\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 1 | Player ID | Byte | \- |
 | 2 | Slot ID | Int16 | \- |
@@ -155,7 +177,7 @@ NetMessage.SendData(5, -1, -1, null, playerID, slotID, prefix);
 ```
 
 ### ContinueConnecting 2 \[6\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | - | - | - | - |
 #### Definition
@@ -171,7 +193,7 @@ NetMessage.SendData(6);
 ```
 
 ### WorldInfo \[7\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 4 | Time | Int32 | \- |
 | 1 | Flag1 | Byte | BitFlags:<br/> 1 = Day Time<br/> 2 = Blood Moon<br/> 4 = Eclipse |
@@ -306,7 +328,7 @@ NetMessage.SendData(7);
 ```
 
 ### TileGetSection \[8\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 4 | X | Int32 | Player Spawn X |
 | 4 | Y | Int32 | Player Spawn Y |
@@ -325,7 +347,7 @@ NetMessage.SendData(8, -1, -1, null, tileX, tileY)
 ```
 
 ### Status \[9\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 4 | Status Max | Int32 | \- |
 | ? | Status Text | NetworkText | \- |
@@ -346,7 +368,7 @@ NetMessage.SendData(9, -1, -1, null, statusMax, flag)
 ```
 
 ### TileSendSection \[10\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 1 | Compressed | Boolean | \- |
 | 4 | X Start | Int32 | \- |
@@ -399,7 +421,7 @@ NetMessage.SendData(10, -1, -1, null, xStart, yStart, width, height)
 ```
 
 ### SectionTileFrame \[11\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 2 | Start X | Int16 | - |
 | 2 | Start Y | Int16 | - |
@@ -422,7 +444,7 @@ NetMessage.SendData(11, -1, -1, null, startX, startY, endX, endY)
 ```
 
 ### PlayerSpawn \[12\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 1 | PlayerID | Byte | - |
 | 2 | Spawn X | Int16 | - |
@@ -450,7 +472,7 @@ NetMessage.SendData(12, -1, -1, null, playerID, playerSpawnContext)
 ```
 
 ### PlayerUpdate \[13\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 1 | PlayerID | Byte | - |
 | 1 | Flag1 | BitsByte | - |
@@ -485,7 +507,7 @@ NetMessage.SendData(13, -1, -1, null, playerID);
 ```
 
 ### PlayerActive \[14\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 1 | PlayerID | Byte | - |
 | 1 | Active | Boolean | - |
@@ -504,7 +526,7 @@ NetMessage.SendData(14, -1, -1, null, playerID, active);
 ```
 
 ### PlayerHp \[16\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 1 | PlayerID | Byte | - |
 | 2 | StatLife | Int16 | - |
@@ -525,7 +547,7 @@ NetMessage.SendData(16, -1, -1, null, playerID);
 ```
 
 ### Tile \[17\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 1 | Action | Byte | - |
 | 2 | TileX | Int16 | - |
@@ -550,7 +572,7 @@ NetMessage.SendData(17, -1, -1, null, action, tileX, tileY, flag1, flag2);
 ```
 
 ### TimeSet \[18\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 1 | DayTime | Boolean | - |
 | 4 | Time | Int32 | - |
@@ -573,7 +595,7 @@ NetMessage.SendData(18);
 ```
 
 ### DoorUse \[19\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 1 | Action | Byte | - |
 | 2 | TileX | Int16 | - |
@@ -596,7 +618,7 @@ NetMessage.SendData(19, -1, -1, null, action, tileX, tileY, direction);
 ```
 
 ### TileSendSquare \[20\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 | 2 | TileX | Int16 | - |
 | 2 | TileY | Int16 | - |
@@ -623,7 +645,7 @@ NetMessage.SendData(20, -1, -1, null, tileX, tileY, width, height, tileChangeTyp
 ```
 
 ### ItemDrop \[21\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -644,7 +666,7 @@ NetMessage.SendData(21, -1, -1, null, itemID, ownIgnore);
 ```
 
 ### ItemOwner \[22\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -660,7 +682,7 @@ NetMessage.SendData(22, -1, -1, null, npcID);
 ```
 
 ### NpcUpdate \[23\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -687,7 +709,7 @@ NetMessage.SendData(23, -1, -1, null, npcID);
 ```
 
 ### NpcItemStrike \[24\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -703,7 +725,7 @@ NetMessage.SendData(24, -1, -1, null, npcID, playerID);
 ```
 
 ### ProjectileNew \[27\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -732,7 +754,7 @@ NetMessage.SendData(27);
 ```
 
 ### NpcStrike \[28\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -747,7 +769,7 @@ NetMessage.SendData(28);
 ```
 
 ### ProjectileDestroy \[29\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -762,7 +784,7 @@ NetMessage.SendData(29);
 ```
 
 ### TogglePvp \[30\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -777,7 +799,7 @@ NetMessage.SendData(30);
 ```
 
 ### ChestGetContents \[31\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -792,7 +814,7 @@ NetMessage.SendData(31);
 ```
 
 ### ChestItem \[32\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -807,7 +829,7 @@ NetMessage.SendData(32);
 ```
 
 ### ChestOpen \[33\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -822,7 +844,7 @@ NetMessage.SendData(33);
 ```
 
 ### PlaceChest \[34\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -837,7 +859,7 @@ NetMessage.SendData(34);
 ```
 
 ### EffectHeal \[35\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -852,7 +874,7 @@ NetMessage.SendData(35);
 ```
 
 ### Zones \[36\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -867,7 +889,7 @@ NetMessage.SendData(36);
 ```
 
 ### PasswordRequired \[37\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -882,7 +904,7 @@ NetMessage.SendData(37);
 ```
 
 ### PasswordSend \[38\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -897,7 +919,7 @@ NetMessage.SendData(38);
 ```
 
 ### RemoveItemOwner \[39\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -912,7 +934,7 @@ NetMessage.SendData(39);
 ```
 
 ### NpcTalk \[40\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -927,7 +949,7 @@ NetMessage.SendData(40);
 ```
 
 ### PlayerAnimation \[41\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -942,7 +964,7 @@ NetMessage.SendData(41);
 ```
 
 ### PlayerMana \[42\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -957,7 +979,7 @@ NetMessage.SendData(42);
 ```
 
 ### EffectMana \[43\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -972,7 +994,7 @@ NetMessage.SendData(43);
 ```
 
 ### PlayerTeam \[45\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -987,7 +1009,7 @@ NetMessage.SendData(45);
 ```
 
 ### SignRead \[46\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1002,7 +1024,7 @@ NetMessage.SendData(46);
 ```
 
 ### SignNew \[47\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1017,7 +1039,7 @@ NetMessage.SendData(47);
 ```
 
 ### LiquidSet \[48\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1032,7 +1054,7 @@ NetMessage.SendData(48);
 ```
 
 ### PlayerSpawnSelf \[49\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1047,7 +1069,7 @@ NetMessage.SendData(49);
 ```
 
 ### PlayerBuff \[50\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1062,7 +1084,7 @@ NetMessage.SendData(50);
 ```
 
 ### NpcSpecial \[51\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1077,7 +1099,7 @@ NetMessage.SendData(51);
 ```
 
 ### ChestUnlock \[52\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1092,7 +1114,7 @@ NetMessage.SendData(52);
 ```
 
 ### NpcAddBuff \[53\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1107,7 +1129,7 @@ NetMessage.SendData(53);
 ```
 
 ### NpcUpdateBuff \[54\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1122,7 +1144,7 @@ NetMessage.SendData(54);
 ```
 
 ### PlayerAddBuff \[55\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1137,7 +1159,7 @@ NetMessage.SendData(55);
 ```
 
 ### UpdateNPCName \[56\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1152,7 +1174,7 @@ NetMessage.SendData(56);
 ```
 
 ### UpdateGoodEvil \[57\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1167,7 +1189,7 @@ NetMessage.SendData(57);
 ```
 
 ### PlayHarp \[58\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1182,7 +1204,7 @@ NetMessage.SendData(58);
 ```
 
 ### HitSwitch \[59\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1197,7 +1219,7 @@ NetMessage.SendData(59);
 ```
 
 ### UpdateNPCHome \[60\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1212,7 +1234,7 @@ NetMessage.SendData(60);
 ```
 
 ### SpawnBossorInvasion \[61\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1227,7 +1249,7 @@ NetMessage.SendData(61);
 ```
 
 ### PlayerDodge \[62\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1242,7 +1264,7 @@ NetMessage.SendData(62);
 ```
 
 ### PaintTile \[63\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1257,7 +1279,7 @@ NetMessage.SendData(63);
 ```
 
 ### PaintWall \[64\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1272,7 +1294,7 @@ NetMessage.SendData(64);
 ```
 
 ### Teleport \[65\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1287,7 +1309,7 @@ NetMessage.SendData(65);
 ```
 
 ### PlayerHealOther \[66\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1302,7 +1324,7 @@ NetMessage.SendData(66);
 ```
 
 ### Placeholder \[67\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1317,7 +1339,7 @@ NetMessage.SendData(67);
 ```
 
 ### ClientUUID \[68\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1332,7 +1354,7 @@ NetMessage.SendData(68);
 ```
 
 ### ChestName \[69\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1347,7 +1369,7 @@ NetMessage.SendData(69);
 ```
 
 ### CatchNPC \[70\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1362,7 +1384,7 @@ NetMessage.SendData(70);
 ```
 
 ### ReleaseNPC \[71\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1377,7 +1399,7 @@ NetMessage.SendData(71);
 ```
 
 ### TravellingMerchantInventory \[72\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1392,7 +1414,7 @@ NetMessage.SendData(72);
 ```
 
 ### TeleportationPotion \[73\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1407,7 +1429,7 @@ NetMessage.SendData(73);
 ```
 
 ### AnglerQuest \[74\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1422,7 +1444,7 @@ NetMessage.SendData(74);
 ```
 
 ### CompleteAnglerQuest \[75\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1437,7 +1459,7 @@ NetMessage.SendData(75);
 ```
 
 ### NumberOfAnglerQuestsCompleted \[76\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1452,7 +1474,7 @@ NetMessage.SendData(76);
 ```
 
 ### CreateTemporaryAnimation \[77\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1467,7 +1489,7 @@ NetMessage.SendData(77);
 ```
 
 ### ReportInvasionProgress \[78\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1482,7 +1504,7 @@ NetMessage.SendData(78);
 ```
 
 ### PlaceObject \[79\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1497,7 +1519,7 @@ NetMessage.SendData(79);
 ```
 
 ### SyncPlayerChestIndex \[80\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1512,7 +1534,7 @@ NetMessage.SendData(80);
 ```
 
 ### CreateCombatText \[81\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1527,7 +1549,7 @@ NetMessage.SendData(81);
 ```
 
 ### LoadNetModule \[82\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1542,7 +1564,7 @@ NetMessage.SendData(82);
 ```
 
 ### NpcKillCount \[83\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1557,7 +1579,7 @@ NetMessage.SendData(83);
 ```
 
 ### PlayerStealth \[84\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1572,7 +1594,7 @@ NetMessage.SendData(84);
 ```
 
 ### ForceItemIntoNearestChest \[85\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1587,7 +1609,7 @@ NetMessage.SendData(85);
 ```
 
 ### UpdateTileEntity \[86\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1602,7 +1624,7 @@ NetMessage.SendData(86);
 ```
 
 ### PlaceTileEntity \[87\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1617,7 +1639,7 @@ NetMessage.SendData(87);
 ```
 
 ### TweakItem \[88\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1632,7 +1654,7 @@ NetMessage.SendData(88);
 ```
 
 ### PlaceItemFrame \[89\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1647,7 +1669,7 @@ NetMessage.SendData(89);
 ```
 
 ### UpdateItemDrop \[90\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1662,7 +1684,7 @@ NetMessage.SendData(90);
 ```
 
 ### EmoteBubble \[91\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1677,7 +1699,7 @@ NetMessage.SendData(91);
 ```
 
 ### SyncExtraValue \[92\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1692,7 +1714,7 @@ NetMessage.SendData(92);
 ```
 
 ### SocialHandshake \[93\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1707,7 +1729,7 @@ NetMessage.SendData(93);
 ```
 
 ### Deprecated \[94\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1722,7 +1744,7 @@ NetMessage.SendData(94);
 ```
 
 ### KillPortal \[95\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1737,7 +1759,7 @@ NetMessage.SendData(95);
 ```
 
 ### PlayerTeleportPortal \[96\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1752,7 +1774,7 @@ NetMessage.SendData(96);
 ```
 
 ### NotifyPlayerNpcKilled \[97\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1767,7 +1789,7 @@ NetMessage.SendData(97);
 ```
 
 ### NotifyPlayerOfEvent \[98\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1782,7 +1804,7 @@ NetMessage.SendData(98);
 ```
 
 ### UpdateMinionTarget \[99\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1797,7 +1819,7 @@ NetMessage.SendData(99);
 ```
 
 ### NpcTeleportPortal \[100\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1812,7 +1834,7 @@ NetMessage.SendData(100);
 ```
 
 ### UpdateShieldStrengths \[101\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1827,7 +1849,7 @@ NetMessage.SendData(101);
 ```
 
 ### NebulaLevelUp \[102\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1842,7 +1864,7 @@ NetMessage.SendData(102);
 ```
 
 ### MoonLordCountdown \[103\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1857,7 +1879,7 @@ NetMessage.SendData(103);
 ```
 
 ### NpcShopItem \[104\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1872,7 +1894,7 @@ NetMessage.SendData(104);
 ```
 
 ### GemLockToggle \[105\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1887,7 +1909,7 @@ NetMessage.SendData(105);
 ```
 
 ### PoofOfSmoke \[106\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1902,7 +1924,7 @@ NetMessage.SendData(106);
 ```
 
 ### SmartTextMessage \[107\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1917,7 +1939,7 @@ NetMessage.SendData(107);
 ```
 
 ### WiredCannonShot \[108\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1932,7 +1954,7 @@ NetMessage.SendData(108);
 ```
 
 ### MassWireOperation \[109\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1947,7 +1969,7 @@ NetMessage.SendData(109);
 ```
 
 ### MassWireOperationPay \[110\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1962,7 +1984,7 @@ NetMessage.SendData(110);
 ```
 
 ### ToggleParty \[111\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1977,7 +1999,7 @@ NetMessage.SendData(111);
 ```
 
 ### TreeGrowFX \[112\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -1992,7 +2014,7 @@ NetMessage.SendData(112);
 ```
 
 ### CrystalInvasionStart \[113\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2007,7 +2029,7 @@ NetMessage.SendData(113);
 ```
 
 ### CrystalInvasionWipeAll \[114\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2022,7 +2044,7 @@ NetMessage.SendData(114);
 ```
 
 ### MinionAttackTargetUpdate \[115\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2037,7 +2059,7 @@ NetMessage.SendData(115);
 ```
 
 ### CrystalInvasionSendWaitTime \[116\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2052,7 +2074,7 @@ NetMessage.SendData(116);
 ```
 
 ### PlayerHurtV2 \[117\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2067,7 +2089,7 @@ NetMessage.SendData(117);
 ```
 
 ### PlayerDeathV2 \[118\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2082,7 +2104,7 @@ NetMessage.SendData(118);
 ```
 
 ### CreateCombatTextExtended \[119\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2097,7 +2119,7 @@ NetMessage.SendData(119);
 ```
 
 ### Emoji \[120\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2112,7 +2134,7 @@ NetMessage.SendData(120);
 ```
 
 ### TileEntityDisplayDollItemSync \[121\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2127,7 +2149,7 @@ NetMessage.SendData(121);
 ```
 
 ### RequestTileEntityInteraction \[122\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2142,7 +2164,7 @@ NetMessage.SendData(122);
 ```
 
 ### WeaponsRackTryPlacing \[123\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2157,7 +2179,7 @@ NetMessage.SendData(123);
 ```
 
 ### TileEntityHatRackItemSync \[124\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2172,7 +2194,7 @@ NetMessage.SendData(124);
 ```
 
 ### SyncTilePicking \[125\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2187,7 +2209,7 @@ NetMessage.SendData(125);
 ```
 
 ### SyncRevengeMarker \[126\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2202,7 +2224,7 @@ NetMessage.SendData(126);
 ```
 
 ### RemoveRevengeMarker \[127\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2217,7 +2239,7 @@ NetMessage.SendData(127);
 ```
 
 ### LandGolfBallInCup \[128\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2232,7 +2254,7 @@ NetMessage.SendData(128);
 ```
 
 ### FinishedConnectingToServer \[129\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2247,7 +2269,7 @@ NetMessage.SendData(129);
 ```
 
 ### FishOutNPC \[130\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2262,7 +2284,7 @@ NetMessage.SendData(130);
 ```
 
 ### TamperWithNPC \[131\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2277,7 +2299,7 @@ NetMessage.SendData(131);
 ```
 
 ### PlayLegacySound \[132\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2292,7 +2314,7 @@ NetMessage.SendData(132);
 ```
 
 ### FoodPlatterTryPlacing \[133\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2307,7 +2329,7 @@ NetMessage.SendData(133);
 ```
 
 ### UpdatePlayerLuckFactors \[134\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2322,7 +2344,7 @@ NetMessage.SendData(134);
 ```
 
 ### DeadPlayer \[135\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2337,7 +2359,7 @@ NetMessage.SendData(135);
 ```
 
 ### SyncCavernMonsterType \[136\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2352,7 +2374,7 @@ NetMessage.SendData(136);
 ```
 
 ### RequestNPCBuffRemoval \[137\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2367,7 +2389,7 @@ NetMessage.SendData(137);
 ```
 
 ### ClientSyncedInventory \[138\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2382,7 +2404,7 @@ NetMessage.SendData(138);
 ```
 
 ### SetCountsAsHostForGameplay \[139\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2397,7 +2419,7 @@ NetMessage.SendData(139);
 ```
 
 ### SetMiscEventValues \[140\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2412,7 +2434,7 @@ NetMessage.SendData(140);
 ```
 
 ### RequestLucyPopup \[141\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2427,7 +2449,7 @@ NetMessage.SendData(141);
 ```
 
 ### SyncProjectileTrackers \[142\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2442,7 +2464,7 @@ NetMessage.SendData(142);
 ```
 
 ### CrystalInvasionRequestedToSkipWaitTime \[143\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2457,7 +2479,7 @@ NetMessage.SendData(143);
 ```
 
 ### RequestQuestEffect \[144\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2472,7 +2494,7 @@ NetMessage.SendData(144);
 ```
 
 ### SyncItemsWithShimmer \[145\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2487,7 +2509,7 @@ NetMessage.SendData(145);
 ```
 
 ### ShimmerActions \[146\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2502,7 +2524,7 @@ NetMessage.SendData(146);
 ```
 
 ### SyncLoadout \[147\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp
@@ -2517,7 +2539,7 @@ NetMessage.SendData(147);
 ```
 
 ### SyncItemCannotBeTakenByEnemies \[148\]
-| Size | Description | Type | Notes |
+| 大小(Size) | 描述(Description) | 类型(Type) | 说明(Note) |
 | ---- | ----------- | ---- | ----- |
 #### Definition
 ```csharp

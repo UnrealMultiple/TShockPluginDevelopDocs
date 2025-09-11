@@ -1,3 +1,6 @@
+# 此仓库已弃用
+文档已全部移至https://github.com/UnrealMultiple/TShockPluginDocs
+
 # 📄前言
 - 本教程默认你有一定的C#基础, 如果你完全不会写C#, 请你点击下面的链接学习(至少到高级教程前)
 - C#教程: [菜鸟教程(C#)](https://www.runoob.com/csharp/csharp-tutorial.html)
